@@ -55,13 +55,13 @@ tasks.withType<Test> {
 }
 
 publishOnCentral {
-    projectUrl.set("https://github.com/WebBased-WoDT/wldt-wodt-adapter")
-    scmConnection.set("git:git@github.com:WebBased-WoDT/wldt-wodt-adapter")
+    projectUrl.set("https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter")
+    scmConnection.set("git:git@github.com:Web-of-Digital-Twins/wldt-wodt-adapter")
     configureMavenCentral.set(false)
     licenseName.set("Apache License, Version 2.0")
     licenseUrl.set("http://www.apache.org/licenses/LICENSE-2.0")
 
-    repository("https://maven.pkg.github.com/WebBased-WoDT/wldt-wodt-adapter", "GitHub") {
+    repository("https://maven.pkg.github.com/Web-of-Digital-Twins/wldt-wodt-adapter", "GitHub") {
         user.set(System.getenv("GITHUB_ACTOR"))
         password.set(System.getenv("GITHUB_TOKEN"))
     }
