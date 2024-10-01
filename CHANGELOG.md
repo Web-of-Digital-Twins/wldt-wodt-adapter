@@ -1,3 +1,38 @@
+## [4.1.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/4.0.0...4.1.0) (2024-10-01)
+
+### Features
+
+* send current dtkg when consumers start to observe ([6f540b6](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/6f540b6eb50d77f2ee4559e30851c635c17686cc))
+
+### Dependency updates
+
+* **deps:** update dependency gradle to v8.10.1 ([8800e83](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8800e8302486d20e0177f2f802e8b30ac74f2160))
+* **deps:** update dependency gradle to v8.10.2 ([2b4cfbf](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/2b4cfbf51767b02819afef9e1c8408636a85d534))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.102 ([3c380ce](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/3c380cebcecd779566b232a2cafb0d19f435881e))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.103 ([6d2c216](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/6d2c21620d79c1cdbc7f0c4337b9fe90d738cde0))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.104 ([d2e7010](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/d2e70100b020dbc604e87fd2ed44ca810018a81e))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.105 ([8745945](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/874594522978fdb34d7cfd0b3d4d1171a8fcd87f))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.106 ([462231b](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/462231be19e145e7b2754395a6f7670c8311ed87))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.107 ([7fc2d55](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/7fc2d55bc11e6419e51468f52ff5f22d02b3ffd9))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.108 ([e02cab4](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/e02cab4c36df09961a74437de4a569567d847fa5))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.109 ([1dfb895](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/1dfb895ec0ca95cab6575c49633c43e715629a04))
+* **deps:** update junit5 monorepo to v5.11.1 ([3478d29](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/3478d2990cf080575d3c3688b1148f0ee31a73e7))
+* **deps:** update plugin com.gradle.develocity to v3.18.1 ([19a90a6](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/19a90a6104484441bd7b95983c6e9a053bf4d5d1))
+* **deps:** update plugin org.danilopianini.gradle-pre-commit-git-hooks to v2.0.10 ([90a01ac](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/90a01ac8697c2a835f7cd56740fb267cfead1c6e))
+* **deps:** update plugin org.danilopianini.gradle-pre-commit-git-hooks to v2.0.12 ([3c37989](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/3c37989b091a7daf7b4c27d256b07fad1c071962))
+* **deps:** update plugin org.danilopianini.gradle-pre-commit-git-hooks to v2.0.13 ([7ff039e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/7ff039e824ac9bbd8708d3581db8c283755bbd21))
+* **deps:** update plugin publish-on-central to v5.1.7 ([b7791e3](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/b7791e359a9a4ebc20606a7e7fb96f259d877c59))
+* **deps:** update plugin publish-on-central to v5.1.8 ([716b150](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/716b150c49cabae6b72efb98d727d296e5cc799b))
+
+### Build and continuous integration
+
+* **deps:** update actions/setup-node action to v4.0.4 ([ef60cc0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/ef60cc0a3ae0ae9d67be69583ccf443e58f2ed36))
+* update action to generate documentation ([baea28d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/baea28de843172cdcf758308116214eaeb3ce5d6))
+
+### General maintenance
+
+* update README ([3c25e9e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/3c25e9e4c4cb33db37ad734cde781fbd4e860bd2))
+
 ## [4.0.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/3.0.1...4.0.0) (2024-08-26)
 
 ### ⚠ BREAKING CHANGES
