@@ -153,6 +153,10 @@ public final class WoTDTDManager implements DTDManager {
             .setRel("type")
             .setType("application/tm+json")
             .build());
+        links.add(Link.newBuilder()
+            .setHref(IRI.of("http://localhost:" + this.portNumber + "/dtkg"))
+            .setRel(WoDTVocabulary.DTKG.getUri())
+            .build());
 
         return ThingDescription.newBuilder()
                 .setAtContext(AtContext.newSingleUriAtContext(SingleUriAtContext.W3ORG_2022_WOT_TD_V11))
