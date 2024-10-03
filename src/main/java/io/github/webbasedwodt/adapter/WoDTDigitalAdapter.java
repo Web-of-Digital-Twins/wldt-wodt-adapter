@@ -226,7 +226,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     public void onAdapterStart() {
         this.woDTWebServer.start();
         this.getConfiguration().getPlatformToRegister().forEach(platform ->
-                this.platformManagementInterface.registerToPlatform(platform, this.dtdManager.getDTD().toJson()));
+                this.platformManagementInterface.registerToPlatform(platform, this.dtdManager.getDTD().toJsonString()));
     }
 
     @Override

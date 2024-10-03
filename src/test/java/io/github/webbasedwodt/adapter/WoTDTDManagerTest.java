@@ -16,20 +16,22 @@
 
 package io.github.webbasedwodt.adapter;
 
-import io.github.sanecity.wot.thing.Thing;
 import io.github.webbasedwodt.adapter.testdouble.PlatformManagementInterfaceReaderTestDouble;
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.integration.wldt.LampDTOntology;
 import io.github.webbasedwodt.model.ontology.DTOntology;
-import io.github.webbasedwodt.model.ontology.Property;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
+import org.eclipse.ditto.json.JsonKey;
+import org.eclipse.ditto.wot.model.Interaction;
+import org.eclipse.ditto.wot.model.Properties;
+import org.eclipse.ditto.wot.model.SingleRootFormElementOp;
+import org.eclipse.ditto.wot.model.ThingDescription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests for {@link WoTDTDManager}.
  */
 class WoTDTDManagerTest {
-    private static final String SNAPSHOT_PROPERTY = "snapshot";
     private static final int TEST_PORT_NUMBER = 3000;
     private final DTOntology lampOntology = new LampDTOntology();
     private DTDManager dtdManager;
@@ -55,11 +56,16 @@ class WoTDTDManagerTest {
     @Test
     @DisplayName("A DTD should carry the mandatory metadata even when empty")
     void testDTDMetadata() {
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertTrue(thingDescription.getProperties().containsKey(SNAPSHOT_PROPERTY));
-        assertFalse(thingDescription.getProperty(SNAPSHOT_PROPERTY).getForms().isEmpty());
-        assertTrue(thingDescription.getMetadata().containsKey(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri()));
-        assertTrue(thingDescription.getMetadata().containsKey(WoDTVocabulary.VERSION.getUri()));
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        final Optional<Properties> properties = thingDescription.getProperties();
+        assertTrue(properties.isPresent());
+        assertTrue(thingDescription.getForms().isPresent());
+        assertTrue(thingDescription.getForms().get()
+                .stream()
+                .anyMatch(form -> form.getOp().equals(SingleRootFormElementOp.OBSERVEALLPROPERTIES)));
+        assertTrue(thingDescription.getWrappedObject().asObject()
+                .getKeys().contains(JsonKey.of(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri())));
+        assertTrue(thingDescription.getVersion().isPresent());
     }
 
     @Test
@@ -67,12 +73,18 @@ class WoTDTDManagerTest {
     void testCorrectInformationOnProperty() {
         final String propertyName = "is-on-property-key";
         this.dtdManager.addProperty(propertyName);
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
         generalTestOnThingDescriptionProperty(thingDescription, propertyName);
-        assertTrue(thingDescription.getProperty(propertyName).getOptionalProperties()
-                .containsKey(WoDTVocabulary.AUGMENTED_INTERACTION.getUri()));
-        assertFalse((Boolean) thingDescription.getProperty(propertyName)
-                .getOptional(WoDTVocabulary.AUGMENTED_INTERACTION.getUri()));
+        final Optional<org.eclipse.ditto.wot.model.Property> property =
+                thingDescription.getProperties().flatMap(properties -> properties.getProperty(propertyName));
+        assertTrue(property.isPresent());
+        assertTrue(property.get().getWrappedObject().asObject()
+                .getKeys().contains(JsonKey.of(WoDTVocabulary.AUGMENTED_INTERACTION.getUri())));
+        assertTrue(property.get().getWrappedObject()
+                .stream()
+                .anyMatch(jsonfield ->
+                        jsonfield.getKey().toString().equals(WoDTVocabulary.AUGMENTED_INTERACTION.getUri())
+                        && !jsonfield.getValue().asBoolean()));
     }
 
     @Test
@@ -81,8 +93,8 @@ class WoTDTDManagerTest {
         final String propertyName = "is-on-property-key";
         this.dtdManager.addProperty(propertyName);
         assertTrue(this.dtdManager.removeProperty(propertyName));
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getProperties().containsKey(propertyName));
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        assertFalse(thingDescription.getProperties().get().getProperty(propertyName).isPresent());
     }
 
     @Test
@@ -90,7 +102,7 @@ class WoTDTDManagerTest {
     void testCorrectInformationOnRelationship() {
         final String relationshipName = "located-inside";
         this.dtdManager.addRelationship(relationshipName);
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
         generalTestOnThingDescriptionProperty(thingDescription, relationshipName);
     }
 
@@ -100,8 +112,8 @@ class WoTDTDManagerTest {
         final String relationshipName = "located-inside";
         this.dtdManager.addRelationship(relationshipName);
         assertTrue(this.dtdManager.removeRelationship(relationshipName));
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getProperties().containsKey(relationshipName));
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        assertFalse(thingDescription.getProperties().get().containsKey(relationshipName));
     }
 
     @Test
@@ -109,9 +121,9 @@ class WoTDTDManagerTest {
     void testCorrectInformationOnAction() {
         final String actionName = "switch-action-key";
         this.dtdManager.addAction(actionName);
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertTrue(thingDescription.getActions().containsKey(actionName));
-        assertFalse(thingDescription.getAction(actionName).getForms().isEmpty());
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        assertTrue(thingDescription.getActions().get().containsKey(actionName));
+        assertFalse(thingDescription.getActions().get().getAction(actionName).flatMap(Interaction::getForms).isEmpty());
     }
 
     @Test
@@ -120,27 +132,26 @@ class WoTDTDManagerTest {
         final String actionName = "switch-action-key";
         this.dtdManager.addAction(actionName);
         assertTrue(this.dtdManager.removeAction(actionName));
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getActions().containsKey(actionName));
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        assertFalse(thingDescription.getActions().get().containsKey(actionName));
     }
 
     @Test
     @DisplayName("The DTDManager should be able to obtain the Platforms to which it is registered and link "
             + "them to the descriptor")
     void addPlatform() {
-        final Thing<?, ?, ?> thingDescription = this.dtdManager.getDTD();
-        assertTrue(thingDescription.getMetadata().containsKey("links"));
-        assertEquals(1, ((List<?>) thingDescription.getMetadata("links")).size());
+        final ThingDescription thingDescription = this.dtdManager.getDTD();
+        assertTrue(thingDescription.getLinks().isPresent());
+        assertTrue(thingDescription.getLinks().get().stream().anyMatch(link ->
+                link.getRel().get().equals(WoDTVocabulary.REGISTERED_TO_PLATFORM.getUri())));
     }
 
-    void generalTestOnThingDescriptionProperty(final Thing<?, ?, ?> thingDescription, final String propertyName) {
-        assertTrue(thingDescription.getProperties().containsKey(propertyName));
-        assertFalse(thingDescription.getProperty(propertyName).getObjectType().isEmpty());
-        assertTrue(thingDescription.getProperty(propertyName).isReadOnly());
-        assertTrue(thingDescription.getProperty(propertyName).isObservable());
-        assertTrue(thingDescription.getProperty(propertyName).getOptionalProperties()
-                .containsKey(WoDTVocabulary.DOMAIN_PREDICATE.getUri()));
-        assertEquals(thingDescription.getProperty(propertyName).getOptional(WoDTVocabulary.DOMAIN_PREDICATE.getUri()),
-                this.lampOntology.obtainProperty(propertyName).flatMap(Property::getUri).get());
+    void generalTestOnThingDescriptionProperty(final ThingDescription thingDescription, final String propertyName) {
+        final Optional<Properties> properties = thingDescription.getProperties();
+        assertTrue(properties.isPresent());
+        assertTrue(properties.get().containsKey(propertyName));
+        assertTrue(properties.get().getProperty(propertyName).get().isReadOnly());
+        assertTrue(properties.get().getProperty(propertyName).get().getWrappedObject()
+                .asObject().getKeys().contains(JsonKey.of(WoDTVocabulary.DOMAIN_TAG.getUri())));
     }
 }

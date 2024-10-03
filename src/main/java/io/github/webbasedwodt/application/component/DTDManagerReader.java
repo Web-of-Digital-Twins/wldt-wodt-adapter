@@ -16,7 +16,7 @@
 
 package io.github.webbasedwodt.application.component;
 
-import io.github.sanecity.wot.thing.Thing;
+import org.eclipse.ditto.wot.model.ThingDescription;
 
 import java.util.Set;
 
@@ -31,8 +31,8 @@ public interface DTDManagerReader {
     Set<String> getAvailableActionIds();
 
     /**
-     * Obtain the Digital Twin Descriptor.
-     * @return Digital Twin Descriptor implemented with a Thing Description
+     * Obtain the Digital Twin Description.
+     * @return Digital Twin Description implemented with a Thing Description
      */
-    Thing<?, ?, ?> getDTD();
+    ThingDescription getDTD();
 }

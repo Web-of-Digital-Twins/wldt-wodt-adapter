@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,36 @@
 
 package io.github.webbasedwodt.adapter;
 
-import io.github.sanecity.wot.DefaultWot;
-import io.github.sanecity.wot.WotException;
-import io.github.sanecity.wot.thing.Context;
-import io.github.sanecity.wot.thing.ExposedThing;
-import io.github.sanecity.wot.thing.Thing;
-import io.github.sanecity.wot.thing.Type;
-import io.github.sanecity.wot.thing.action.ThingAction;
-import io.github.sanecity.wot.thing.form.Form;
-import io.github.sanecity.wot.thing.form.Operation;
-import io.github.sanecity.wot.thing.property.ExposedThingProperty;
-import io.github.sanecity.wot.thing.property.ThingProperty;
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.application.component.PlatformManagementInterfaceReader;
 import io.github.webbasedwodt.model.ontology.DTOntology;
-import io.github.webbasedwodt.model.ontology.Property;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
+import org.eclipse.ditto.json.JsonObject;
+import org.eclipse.ditto.json.JsonObjectBuilder;
+
+import org.eclipse.ditto.wot.model.Action;
+import org.eclipse.ditto.wot.model.ActionFormElement;
+import org.eclipse.ditto.wot.model.ActionForms;
+import org.eclipse.ditto.wot.model.Actions;
+import org.eclipse.ditto.wot.model.AtContext;
+import org.eclipse.ditto.wot.model.AtType;
+import org.eclipse.ditto.wot.model.BaseLink;
+import org.eclipse.ditto.wot.model.IRI;
+import org.eclipse.ditto.wot.model.Link;
+import org.eclipse.ditto.wot.model.Properties;
+import org.eclipse.ditto.wot.model.Property;
+import org.eclipse.ditto.wot.model.RootFormElement;
+import org.eclipse.ditto.wot.model.Security;
+import org.eclipse.ditto.wot.model.SecurityDefinitions;
+import org.eclipse.ditto.wot.model.SecurityScheme;
+import org.eclipse.ditto.wot.model.SingleRootFormElementOp;
+import org.eclipse.ditto.wot.model.SingleUriAtContext;
+import org.eclipse.ditto.wot.model.ThingDescription;
+import org.eclipse.ditto.wot.model.Version;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,21 +53,22 @@ import java.util.stream.Collectors;
 
 /**
  * This class provide an implementation of the {@link io.github.webbasedwodt.application.component.DTDManager} using
- * a WoT Thing Description to implement the Digital Twin Descriptor.
+ * a WoT Thing Description to implement the Digital Twin Description.
  */
-final class WoTDTDManager implements DTDManager {
-    private static final String THING_DESCRIPTION_CONTEXT = "https://www.w3.org/2019/wot/td/v1";
-    private static final String VERSION = "1.0.0";
-    private static final String SNAPSHOT_DTD_PROPERTY = "snapshot";
+public final class WoTDTDManager implements DTDManager {
+    private static final String INSTANCE_VERSION = "1.0.0";
+    private static final String MODEL_VERSION = "1.0.0";
+    private static final String AVAILABLE_ACTIONS_PROPERTY = "availableActions";
+    private static final String THING_MODEL_URL = "https://raw.githubusercontent.com/Web-of-Digital-Twins/"
+            + "dtd-conceptual-model/refs/heads/main/implementations/wot/dtd-thing-model.tm.jsonld";
     private final String digitalTwinUri;
     private final String physicalAssetId;
     private final DTOntology ontology;
     private final int portNumber;
     private final PlatformManagementInterfaceReader platformManagementInterfaceReader;
-    private final Map<String, ThingProperty<Object>> properties;
-    private final Map<String, ThingProperty<Object>> relationships;
-    private final Map<String, ThingAction<Object, Object>> actions;
-
+    private final Map<String, Property> properties;
+    private final Map<String, Property> relationships;
+    private final Map<String, Action> actions;
 
     /**
      * Default constructor.
@@ -83,7 +95,7 @@ final class WoTDTDManager implements DTDManager {
 
     @Override
     public void addProperty(final String rawPropertyName) {
-        this.createThingDescriptionProperty(rawPropertyName, true)
+        this.createDTDProperty(rawPropertyName, true)
                 .ifPresent(property -> this.properties.put(rawPropertyName, property));
     }
 
@@ -94,7 +106,7 @@ final class WoTDTDManager implements DTDManager {
 
     @Override
     public void addRelationship(final String rawRelationshipName) {
-        this.createThingDescriptionProperty(rawRelationshipName, false)
+        this.createDTDProperty(rawRelationshipName, false)
                 .ifPresent(relationship -> this.relationships.put(rawRelationshipName, relationship));
     }
 
@@ -105,7 +117,7 @@ final class WoTDTDManager implements DTDManager {
 
     @Override
     public void addAction(final String rawActionName) {
-        this.createThingDescriptionAction(rawActionName).ifPresent(action -> this.actions.put(rawActionName, action));
+        this.createDTDAction(rawActionName).ifPresent(action -> this.actions.put(rawActionName, action));
     }
 
     @Override
@@ -119,118 +131,83 @@ final class WoTDTDManager implements DTDManager {
     }
 
     @Override
-    public Thing<?, ?, ?> getDTD() {
-        try {
-            final ExposedThing thingDescription = new DefaultWot().produce(new Thing.Builder()
-                    .setId(this.digitalTwinUri)
-                    .setObjectContext(new Context(THING_DESCRIPTION_CONTEXT))
-                    .build()
-            );
-            this.initializeThingDescription(thingDescription);
-            this.properties.forEach(thingDescription::addProperty);
-            this.relationships.forEach(thingDescription::addProperty);
-            this.actions.forEach((rawActionName, action) ->
-                    thingDescription.addAction(rawActionName, action, () -> { }));
-            thingDescription.getActions().forEach((name, action) ->
-                action.addForm(new Form.Builder()
-                        .addOp(Operation.INVOKE_ACTION)
-                        .setHref("http://localhost:" + this.portNumber + "/action/" + name)
-                        .build())
-            );
-            return thingDescription;
-        } catch (WotException e) {
-            throw new IllegalStateException("Impossible to create the WoT DTD Manager in the current state", e);
+    public ThingDescription getDTD() {
+        final Map<String, Property> dtdProperties = new HashMap<>(this.properties);
+        dtdProperties.putAll(this.relationships);
+        if (!actions.isEmpty()) {
+            dtdProperties.put(AVAILABLE_ACTIONS_PROPERTY, Property.newBuilder(AVAILABLE_ACTIONS_PROPERTY)
+                            .setAtType(AtType.newSingleAtType(WoDTVocabulary.AVAILABLE_ACTIONS.getUri()))
+                            .setReadOnly(true)
+                            .build());
         }
+
+        final List<BaseLink<?>> links = this.platformManagementInterfaceReader
+                .getRegisteredPlatformUrls()
+                .stream().map(uri -> BaseLink.newLinkBuilder()
+                        .setHref(IRI.of(uri.toString()))
+                        .setRel(WoDTVocabulary.REGISTERED_TO_PLATFORM.getUri())
+                        .build())
+                .collect(Collectors.toList());
+        links.add(Link.newBuilder()
+            .setHref(IRI.of(THING_MODEL_URL))
+            .setRel("type")
+            .setType("application/tm+json")
+            .build());
+
+        return ThingDescription.newBuilder()
+                .setAtContext(AtContext.newSingleUriAtContext(SingleUriAtContext.W3ORG_2022_WOT_TD_V11))
+                .setId(IRI.of(this.digitalTwinUri))
+                .setAtType(AtType.newSingleAtType(this.ontology.getDigitalTwinType()))
+                .setVersion(Version.newBuilder()
+                        .setInstance(INSTANCE_VERSION)
+                        .setModel(MODEL_VERSION)
+                        .build())
+                .set(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri(), this.physicalAssetId)
+                .setSecurityDefinitions(SecurityDefinitions.of(Map.of("nosec_sc",
+                        SecurityScheme.newNoSecurityBuilder("nosec_sc").build())))
+                .setSecurity(Security.newSingleSecurity("nosec_sc"))
+                .setProperties(Properties.from(dtdProperties.values()))
+                .setActions(Actions.from(this.actions.values()))
+                .setForms(List.of(RootFormElement.newBuilder()
+                                .setHref(IRI.of("ws://localhost:" + this.portNumber + "/dtkg"))
+                                .setSubprotocol("websocket")
+                                .setOp(SingleRootFormElementOp.OBSERVEALLPROPERTIES)
+                                .build()))
+                .setLinks(links)
+                .build();
+
     }
 
-    private void initializeThingDescription(final ExposedThing thingDescription) {
-        thingDescription.setObjectType(new Type(this.ontology.getDigitalTwinType()));
-        thingDescription.addProperty(SNAPSHOT_DTD_PROPERTY, new ExposedThingProperty.Builder()
-                .setReadOnly(true)
-                .setObservable(true)
-                .build());
-        // Necessary to add the form afterward considering that the wot-servient library when adding a property
-        // to an ExposedThing resets in an unexpected way the forms.
-        final ThingProperty<?> snapshotProperty = thingDescription.getProperty(SNAPSHOT_DTD_PROPERTY);
-        snapshotProperty.addForm(new Form.Builder()
-                .addOp(Operation.OBSERVE_PROPERTY)
-                .setHref("ws://localhost:" + this.portNumber + "/dtkg")
-                .setSubprotocol("websocket")
-                .build());
-        thingDescription.getMetadata()
-                        .put("links",
-                            this.platformManagementInterfaceReader
-                                .getRegisteredPlatformUrls()
-                                .stream().map(uri -> new WoDTDigitalTwinsPlatformLink(uri.toString()))
-                                .collect(Collectors.toList())
-                        );
-        thingDescription.getMetadata().put(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri(), this.physicalAssetId);
-        thingDescription.getMetadata().put(WoDTVocabulary.VERSION.getUri(), VERSION);
-    }
-
-    private Optional<ThingProperty<Object>> createThingDescriptionProperty(
+    private Optional<Property> createDTDProperty(
             final String rawPropertyName,
             final boolean indicateAugmentation
     ) {
-        final Optional<String> propertyValueType = this.ontology.obtainPropertyValueType(rawPropertyName);
-        final Optional<String> domainPredicateUri = this.ontology.obtainProperty(rawPropertyName).flatMap(Property::getUri);
+        final Optional<String> domainPredicateUri = this.ontology
+                .obtainProperty(rawPropertyName)
+                .flatMap(io.github.webbasedwodt.model.ontology.Property::getUri);
 
-        if (propertyValueType.isPresent() && domainPredicateUri.isPresent()) {
-            final Map<String, Object> metadata = new HashMap<>();
-            metadata.put(WoDTVocabulary.DOMAIN_PREDICATE.getUri(), domainPredicateUri.get());
+        if (domainPredicateUri.isPresent()) {
+            final JsonObjectBuilder metadata = JsonObject.newBuilder()
+                    .set(WoDTVocabulary.DOMAIN_TAG.getUri(), domainPredicateUri.get());
             if (indicateAugmentation) {
-                metadata.put(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false);
+                metadata.set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false);
             }
 
-            return Optional.of(new ThingProperty.Builder()
-                    .setObjectType(propertyValueType.get())
-                    .setReadOnly(true)
-                    .setObservable(true)
-                    .setOptionalProperties(metadata)
-                    .build());
-        } else {
-            return Optional.empty();
+            return Optional.of(Property.newBuilder(rawPropertyName, metadata.build())
+                            .setReadOnly(true)
+                            .build());
         }
+        return Optional.empty();
     }
 
-    private Optional<ThingAction<Object, Object>> createThingDescriptionAction(final String rawActionName) {
-        return this.ontology.obtainActionType(rawActionName).map(actionType -> new ThingAction.Builder()
-                .setObjectType(actionType)
-                .setInput(null)
-                .setOutput(null)
-                .build());
-    }
-
-    /**
-     * Class to describe a link to a WoDT Digital Twins Platform within the DTD.
-     */
-    private static class WoDTDigitalTwinsPlatformLink {
-        private final String href;
-        private final String rel;
-
-        /**
-         * Default constructor.
-         * @param href the url of the WoDT Digital Twins Platform
-         */
-        WoDTDigitalTwinsPlatformLink(final String href) {
-            this.href = href;
-            this.rel = WoDTVocabulary.REGISTERED_TO_PLATFORM.getUri();
-        }
-
-        /**
-         * Obtain the url of the WoDT Digital Twins Platform.
-         * @return the url
-         */
-        public String getHref() {
-            return this.href;
-        }
-
-        /**
-         * Obtain the relationship of the link following the Web Linking Specification.
-         * @return the relation of the link
-         */
-        public String getRel() {
-            return this.rel;
-        }
+    private Optional<Action> createDTDAction(final String rawActionName) {
+        return this.ontology.obtainActionType(rawActionName)
+                .map(actionType -> Action.newBuilder(rawActionName)
+                        .set(WoDTVocabulary.DOMAIN_TAG.getUri(), actionType)
+                        .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false)
+                        .setForms(ActionForms.of(List.of(ActionFormElement.newBuilder()
+                            .setHref(IRI.of("http://localhost:" + this.portNumber + "/action/" + rawActionName))
+                            .build())))
+                        .build());
     }
 }
