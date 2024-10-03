@@ -39,7 +39,6 @@ dependencies {
     implementation(libs.javalin)
     implementation(libs.jena)
     api(libs.wldt)
-    implementation(libs.wot.servient)
     testImplementation(libs.bundles.java.testing)
     testRuntimeOnly(libs.junit.engine)
 }
