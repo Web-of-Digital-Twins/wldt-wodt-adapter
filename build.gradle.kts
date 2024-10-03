@@ -35,6 +35,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.ditto.wot.model)
     implementation(libs.javalin)
     implementation(libs.jena)
     api(libs.wldt)
