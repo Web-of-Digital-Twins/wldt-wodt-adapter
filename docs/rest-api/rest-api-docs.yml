@@ -48,12 +48,12 @@ paths:
     get:
       tags:
         - WoDT Digital Twin Interface API
-      summary: obtain the current Digital Twin Descriptor of the WoDT Digital Twin
-      operationId: getDigitalTwinDescriptor
-      description: obtain the current Digital Twin Descriptor of the WoDT Digital Twin
+      summary: obtain the current Digital Twin Description of the WoDT Digital Twin
+      operationId: getDigitalTwinDescription
+      description: obtain the current Digital Twin Description of the WoDT Digital Twin
       responses:
         '200':
-          description: the Digital Twin Descriptor
+          description: the Digital Twin Description
           content:
             application/td+json:
               schema:
@@ -109,7 +109,7 @@ paths:
                     "https://purl.org/wodt/physicalAssetId": "lampPA"
                   }
         '204':
-          description: the current Digital Twin Descriptor is empty
+          description: the current Digital Twin Description is empty
 
   /action/{actionName}:
     post:
