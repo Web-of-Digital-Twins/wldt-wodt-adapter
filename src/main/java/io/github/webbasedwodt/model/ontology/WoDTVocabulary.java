@@ -27,19 +27,19 @@ public enum WoDTVocabulary {
     BASE_URI("https://purl.org/wodt/"),
 
     /**
-     * Current status predicate.
+     * Predicate to link the dtd to the dtkg.
      */
-    CURRENT_STATUS(BASE_URI.uri + "currentStatus"),
+    DTKG(BASE_URI.uri + "dtkg"),
 
     /**
-     * Domain predicate predicate.
+     * Domain tag predicate to semantically annotate DT model.
      */
-    DOMAIN_PREDICATE(BASE_URI.uri + "domainPredicate"),
+    DOMAIN_TAG(BASE_URI.uri + "domainTag"),
 
     /**
-     * Has descriptor predicate.
+     * Predicate to link to the associated DTD.
      */
-    HAS_DESCRIPTOR(BASE_URI.uri + "hasDescriptor"),
+    DTD(BASE_URI.uri + "dtd"),
 
     /**
      * Registered to platform predicate.
@@ -62,9 +62,9 @@ public enum WoDTVocabulary {
     AVAILABLE_ACTION_ID(BASE_URI.uri + "availableActionId"),
 
     /**
-     * Version predicate.
+     * Available actions type.
      */
-    VERSION(BASE_URI.uri + "version");
+    AVAILABLE_ACTIONS(BASE_URI.uri + "AvailableActions");
 
     private final String uri;
 
