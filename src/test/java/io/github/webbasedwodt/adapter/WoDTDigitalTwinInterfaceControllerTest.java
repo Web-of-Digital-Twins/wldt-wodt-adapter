@@ -65,7 +65,7 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtkg");
             assertEquals(HttpStatus.NO_CONTENT.getCode(), response.code());
-            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.HAS_DESCRIPTOR + "\"", response.header(Header.LINK));
+            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
             assertTrue(response.body().string().isEmpty());
         });
     }
@@ -78,7 +78,7 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtkg");
             assertEquals(HttpStatus.OK.getCode(), response.code());
-            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.HAS_DESCRIPTOR + "\"", response.header(Header.LINK));
+            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
             assertEquals(this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph(), response.body().string());
         });
     }
@@ -89,8 +89,8 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtd");
             assertEquals(HttpStatus.OK.getCode(), response.code());
-            assertEquals("</dtkg>; rel=\"" + WoDTVocabulary.CURRENT_STATUS + "\"", response.header(Header.LINK));
-            assertEquals(this.dtdManager.getDTD().toJson(), response.body().string());
+            assertEquals("</dtkg>; rel=\"" + WoDTVocabulary.DTKG + "\"", response.header(Header.LINK));
+            assertEquals(this.dtdManager.getDTD().toJsonString(), response.body().string());
         });
     }
 
