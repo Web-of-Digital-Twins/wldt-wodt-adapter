@@ -22,7 +22,7 @@ import io.github.webbasedwodt.integration.wldt.LampDTOntology;
 import io.github.webbasedwodt.model.ontology.DTOntology;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
 import org.eclipse.ditto.json.JsonKey;
-import org.eclipse.ditto.wot.model.Interaction;
+import org.eclipse.ditto.wot.model.Action;
 import org.eclipse.ditto.wot.model.Properties;
 import org.eclipse.ditto.wot.model.SingleRootFormElementOp;
 import org.eclipse.ditto.wot.model.ThingDescription;
@@ -59,6 +59,9 @@ class WoTDTDManagerTest {
         final ThingDescription thingDescription = this.dtdManager.getDTD();
         final Optional<Properties> properties = thingDescription.getProperties();
         assertTrue(properties.isPresent());
+        assertTrue(thingDescription.getAtType().isPresent());
+        assertTrue(thingDescription.getId().isPresent());
+        assertTrue(thingDescription.getActions().isPresent());
         assertTrue(thingDescription.getForms().isPresent());
         assertTrue(thingDescription.getForms().get()
                 .stream()
@@ -66,6 +69,11 @@ class WoTDTDManagerTest {
         assertTrue(thingDescription.getWrappedObject().asObject()
                 .getKeys().contains(JsonKey.of(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri())));
         assertTrue(thingDescription.getVersion().isPresent());
+        assertTrue(thingDescription.getLinks().isPresent());
+        assertTrue(thingDescription.getLinks().get().stream().anyMatch(link ->
+                "type".equals(link.getRel().get())));
+        assertTrue(thingDescription.getLinks().get().stream().anyMatch(link ->
+                link.getRel().get().equals(WoDTVocabulary.DTKG.getUri())));
     }
 
     @Test
@@ -123,7 +131,15 @@ class WoTDTDManagerTest {
         this.dtdManager.addAction(actionName);
         final ThingDescription thingDescription = this.dtdManager.getDTD();
         assertTrue(thingDescription.getActions().get().containsKey(actionName));
-        assertFalse(thingDescription.getActions().get().getAction(actionName).flatMap(Interaction::getForms).isEmpty());
+        final Action action = thingDescription.getActions().get().getAction(actionName).get();
+        assertFalse(action.getForms().isEmpty());
+        assertTrue(action.getWrappedObject().asObject().getKeys()
+                .contains(JsonKey.of(WoDTVocabulary.DOMAIN_TAG.getUri())));
+        assertTrue(action.getWrappedObject().asObject().getKeys()
+                .contains(JsonKey.of(WoDTVocabulary.AUGMENTED_INTERACTION.getUri())));
+        assertTrue(action.getWrappedObject().stream().anyMatch(jsonfield ->
+                jsonfield.getKey().toString().equals(WoDTVocabulary.AUGMENTED_INTERACTION.getUri())
+                    && !jsonfield.getValue().asBoolean()));
     }
 
     @Test
