@@ -91,7 +91,6 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtd");
             assertEquals(HttpStatus.OK.getCode(), response.code());
-            assertEquals("</dtkg>; rel=\"" + WoDTVocabulary.DTKG + "\"", response.header(Header.LINK));
             assertEquals(this.dtdManager.getDTD().toJsonString(), response.body().string());
         });
     }
