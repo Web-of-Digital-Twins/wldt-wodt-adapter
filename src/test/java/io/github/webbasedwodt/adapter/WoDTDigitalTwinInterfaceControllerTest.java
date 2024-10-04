@@ -32,6 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,8 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests for {@link WoDTDigitalTwinInterfaceControllerImpl}.
  */
 class WoDTDigitalTwinInterfaceControllerTest {
-    private static final String TEST_DIGITAL_TWIN_URI = "http://example/dt";
     private static final int TEST_PORT_NUMBER = 3000;
+    private static final URI TEST_DIGITAL_TWIN_URI = URI.create("http://example:" + TEST_PORT_NUMBER + "/dt");
     private Javalin app;
     private DTKGEngine dtkgEngine;
     private DTDManager dtdManager;
@@ -54,7 +56,6 @@ class WoDTDigitalTwinInterfaceControllerTest {
                 new DTVersion(1, 0, 0),
                 new LampDTOntology(),
                 "lampPA",
-                TEST_PORT_NUMBER,
                 new PlatformManagementInterfaceReaderTestDouble());
         new WoDTDigitalTwinInterfaceControllerImpl(this.dtkgEngine, this.dtdManager, (action, body) -> true)
                 .registerRoutes(this.app);

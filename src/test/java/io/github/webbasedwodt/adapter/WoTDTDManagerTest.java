@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests for {@link WoTDTDManager}.
  */
 class WoTDTDManagerTest {
-    private static final int TEST_PORT_NUMBER = 3000;
     private final DTOntology lampOntology = new LampDTOntology();
     private final DTVersion dtVersion = new DTVersion(1, 0, 0);
     private DTDManager dtdManager;
@@ -48,11 +48,10 @@ class WoTDTDManagerTest {
     @BeforeEach
     public void init() {
         this.dtdManager = new WoTDTDManager(
-                "http://example/dt",
+                URI.create("http://example:3000/dt"),
                 this.dtVersion,
                 this.lampOntology,
                 "lampPA",
-                TEST_PORT_NUMBER,
                 new PlatformManagementInterfaceReaderTestDouble());
     }
 

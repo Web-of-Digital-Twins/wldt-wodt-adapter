@@ -33,6 +33,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFWriter;
 import org.apache.jena.shared.Lock;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -50,9 +51,9 @@ final class JenaDTKGEngine implements DTKGEngine {
      * Default constructor.
      * @param digitalTwinUri the uri of the Digital Twin for which this class creates the DTKG
      */
-    JenaDTKGEngine(final String digitalTwinUri) {
+    JenaDTKGEngine(final URI digitalTwinUri) {
         this.dtkgModel = ModelFactory.createDefaultModel();
-        this.digitalTwinResource = this.dtkgModel.createResource(digitalTwinUri);
+        this.digitalTwinResource = this.dtkgModel.createResource(digitalTwinUri.toString());
         this.observers = new ArrayList<>();
     }
 

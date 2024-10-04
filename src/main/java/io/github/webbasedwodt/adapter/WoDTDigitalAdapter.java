@@ -61,7 +61,6 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                 this.getConfiguration().getDtVersion(),
                 this.getConfiguration().getOntology(),
                 this.getConfiguration().getPhysicalAssetId(),
-                this.getConfiguration().getPortNumber(),
                 this.platformManagementInterface
         );
         this.woDTWebServer = new WoDTWebServerImpl(

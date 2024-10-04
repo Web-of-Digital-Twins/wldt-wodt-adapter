@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,7 +57,7 @@ class JenaDTKGEngineTest {
 
     @BeforeEach
     public void init() {
-        this.dtkgEngine = new JenaDTKGEngine("http://example.com/dt");
+        this.dtkgEngine = new JenaDTKGEngine(URI.create("http://example.com/dt"));
         this.propertyList.forEach(property ->
                 this.dtkgEngine.addDigitalTwinPropertyUpdate(property.getLeft(), property.getRight())
         );
