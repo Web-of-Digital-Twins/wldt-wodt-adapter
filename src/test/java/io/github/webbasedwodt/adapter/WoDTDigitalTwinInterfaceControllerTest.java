@@ -20,6 +20,7 @@ import io.github.webbasedwodt.adapter.testdouble.PlatformManagementInterfaceRead
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.application.component.DTKGEngine;
 import io.github.webbasedwodt.integration.wldt.LampDTOntology;
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import io.github.webbasedwodt.model.ontology.Literal;
 import io.github.webbasedwodt.model.ontology.Property;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
@@ -50,6 +51,7 @@ class WoDTDigitalTwinInterfaceControllerTest {
         this.dtkgEngine = new JenaDTKGEngine(TEST_DIGITAL_TWIN_URI);
         this.dtdManager = new WoTDTDManager(
                 TEST_DIGITAL_TWIN_URI,
+                new DTVersion(1, 0, 0),
                 new LampDTOntology(),
                 "lampPA",
                 TEST_PORT_NUMBER,

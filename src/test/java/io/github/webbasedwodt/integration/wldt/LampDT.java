@@ -18,6 +18,7 @@ package io.github.webbasedwodt.integration.wldt;
 
 import io.github.webbasedwodt.adapter.WoDTDigitalAdapter;
 import io.github.webbasedwodt.adapter.WoDTDigitalAdapterConfiguration;
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import it.wldt.core.engine.DigitalTwin;
 import it.wldt.core.engine.DigitalTwinEngine;
 import it.wldt.exception.EventBusException;
@@ -54,6 +55,7 @@ public final class LampDT {
                     "wodt-dt-adapter",
                     new WoDTDigitalAdapterConfiguration(
                             "http://localhost:" + TEST_PORT_NUMBER,
+                            new DTVersion(1, 2, 3),
                             new LampDTOntology(),
                             TEST_PORT_NUMBER,
                             "lampPA",

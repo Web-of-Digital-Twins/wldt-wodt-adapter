@@ -16,6 +16,7 @@
 
 package io.github.webbasedwodt.adapter;
 
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import io.github.webbasedwodt.model.ontology.DTOntology;
 
 import java.net.URI;
@@ -28,6 +29,7 @@ import java.util.Set;
 public final class WoDTDigitalAdapterConfiguration {
     private final DTOntology ontology;
     private final String digitalTwinUri;
+    private final DTVersion dtVersion;
     private final int portNumber;
     private final String physicalAssetId;
     private final Set<URI> platformToRegister;
@@ -35,6 +37,7 @@ public final class WoDTDigitalAdapterConfiguration {
     /**
      * Default constructor.
      * @param digitalTwinUri the uri of the WoDT Digital Twin
+     * @param dtVersion the version of the dt
      * @param ontology the ontology to use for the semantics
      * @param portNumber the port number where to expose services
      * @param physicalAssetId the id of the associated physical asset
@@ -42,11 +45,13 @@ public final class WoDTDigitalAdapterConfiguration {
      */
     public WoDTDigitalAdapterConfiguration(
             final String digitalTwinUri,
+            final DTVersion dtVersion,
             final DTOntology ontology,
             final int portNumber,
             final String physicalAssetId,
             final Set<URI> platformToRegister) {
         this.digitalTwinUri = digitalTwinUri;
+        this.dtVersion = dtVersion;
         this.ontology = ontology;
         this.portNumber = portNumber;
         this.physicalAssetId = physicalAssetId;
@@ -59,6 +64,14 @@ public final class WoDTDigitalAdapterConfiguration {
      */
     public String getDigitalTwinUri() {
         return this.digitalTwinUri;
+    }
+
+    /**
+     * Obtain the WoDT Digital Twin version.
+     * @return the dt version.
+     */
+    public DTVersion getDtVersion() {
+        return this.dtVersion;
     }
 
     /**
