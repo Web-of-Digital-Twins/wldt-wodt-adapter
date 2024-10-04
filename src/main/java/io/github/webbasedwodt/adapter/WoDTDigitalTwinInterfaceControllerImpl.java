@@ -99,7 +99,6 @@ final class WoDTDigitalTwinInterfaceControllerImpl implements WoDTDigitalTwinInt
             context.header(Header.CONTENT_TYPE, "application/td+json");
             context.result(dtd);
         }
-        context.header(Header.LINK, "</dtkg>; rel=\"" + WoDTVocabulary.DTKG + "\"");
     }
 
     @Override
