@@ -34,14 +34,14 @@ import java.util.stream.Collectors;
 final class BasePlatformManagementInterface implements PlatformManagementInterface {
     private static final String PATH_TO_PLATFORM_WODT = "/wodt";
     private static final int ACCEPTED_REQUEST_STATUS_CODE = 202;
-    private final String digitalTwinUri;
+    private final URI digitalTwinUri;
     private final Set<URI> platforms;
 
     /**
      * Default constructor.
      * @param digitalTwinUri the uri of the WoDT Digital Twin
      */
-    BasePlatformManagementInterface(final String digitalTwinUri) {
+    BasePlatformManagementInterface(final URI digitalTwinUri) {
         this.digitalTwinUri = digitalTwinUri;
         this.platforms = Collections.synchronizedSet(new HashSet<>());
     }
@@ -72,7 +72,7 @@ final class BasePlatformManagementInterface implements PlatformManagementInterfa
         final HttpClient httpClient = HttpClient.newHttpClient();
         this.platforms.forEach(platformUrl -> {
             final HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(getPlatformWoDT(platformUrl, this.digitalTwinUri))
+                    .uri(getPlatformWoDT(platformUrl, this.digitalTwinUri.toString()))
                     .DELETE()
                     .build();
             httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());

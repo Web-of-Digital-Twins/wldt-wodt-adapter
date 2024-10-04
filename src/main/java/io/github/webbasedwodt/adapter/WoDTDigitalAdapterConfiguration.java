@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public final class WoDTDigitalAdapterConfiguration {
     private final DTOntology ontology;
-    private final String digitalTwinUri;
+    private final URI digitalTwinUri;
     private final DTVersion dtVersion;
     private final int portNumber;
     private final String physicalAssetId;
@@ -36,7 +36,8 @@ public final class WoDTDigitalAdapterConfiguration {
 
     /**
      * Default constructor.
-     * @param digitalTwinUri the uri of the WoDT Digital Twin
+     * @param digitalTwinUri the uri of the WoDT Digital Twin.
+     *                       It also acts as the base URI (port included) for exposed services
      * @param dtVersion the version of the dt
      * @param ontology the ontology to use for the semantics
      * @param portNumber the port number where to expose services
@@ -44,7 +45,7 @@ public final class WoDTDigitalAdapterConfiguration {
      * @param platformToRegister the platforms to which register
      */
     public WoDTDigitalAdapterConfiguration(
-            final String digitalTwinUri,
+            final URI digitalTwinUri,
             final DTVersion dtVersion,
             final DTOntology ontology,
             final int portNumber,
@@ -62,7 +63,7 @@ public final class WoDTDigitalAdapterConfiguration {
      * Obtain the WoDT Digital Twin URI.
      * @return the URI.
      */
-    public String getDigitalTwinUri() {
+    public URI getDigitalTwinUri() {
         return this.digitalTwinUri;
     }
 

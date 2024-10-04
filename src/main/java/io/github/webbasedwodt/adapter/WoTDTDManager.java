@@ -44,6 +44,7 @@ import org.eclipse.ditto.wot.model.SingleUriAtContext;
 import org.eclipse.ditto.wot.model.ThingDescription;
 import org.eclipse.ditto.wot.model.Version;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,11 +62,10 @@ public final class WoTDTDManager implements DTDManager {
     private static final String AVAILABLE_ACTIONS_PROPERTY = "availableActions";
     private static final String THING_MODEL_URL = "https://raw.githubusercontent.com/Web-of-Digital-Twins/"
             + "dtd-conceptual-model/refs/heads/main/implementations/wot/dtd-thing-model.tm.jsonld";
-    private final String digitalTwinUri;
+    private final URI digitalTwinUri;
     private final DTVersion dtVersion;
     private final String physicalAssetId;
     private final DTOntology ontology;
-    private final int portNumber;
     private final PlatformManagementInterfaceReader platformManagementInterfaceReader;
     private final Map<String, Property> properties;
     private final Map<String, Property> relationships;
@@ -77,20 +77,17 @@ public final class WoTDTDManager implements DTDManager {
      * @param dtVersion the version of the dt
      * @param ontology the ontology used to obtain the semantics
      * @param physicalAssetId the id of the associated physical asset
-     * @param portNumber the port number where to offer the affordances
      * @param platformManagementInterfaceReader the platform management interface reader reference
      */
-    WoTDTDManager(final String digitalTwinUri,
+    WoTDTDManager(final URI digitalTwinUri,
                   final DTVersion dtVersion,
                   final DTOntology ontology,
                   final String physicalAssetId,
-                  final int portNumber,
                   final PlatformManagementInterfaceReader platformManagementInterfaceReader) {
         this.digitalTwinUri = digitalTwinUri;
         this.dtVersion = dtVersion;
         this.ontology = ontology;
         this.physicalAssetId = physicalAssetId;
-        this.portNumber = portNumber;
         this.platformManagementInterfaceReader = platformManagementInterfaceReader;
         this.properties = new HashMap<>();
         this.relationships = new HashMap<>();
@@ -158,13 +155,13 @@ public final class WoTDTDManager implements DTDManager {
             .setType("application/tm+json")
             .build());
         links.add(Link.newBuilder()
-            .setHref(IRI.of("http://localhost:" + this.portNumber + "/dtkg"))
+            .setHref(IRI.of(this.digitalTwinUri.resolve("/dtkg").toString()))
             .setRel(WoDTVocabulary.DTKG.getUri())
             .build());
 
         return ThingDescription.newBuilder()
                 .setAtContext(AtContext.newSingleUriAtContext(SingleUriAtContext.W3ORG_2022_WOT_TD_V11))
-                .setId(IRI.of(this.digitalTwinUri))
+                .setId(IRI.of(this.digitalTwinUri.toString()))
                 .setAtType(AtType.newSingleAtType(this.ontology.getDigitalTwinType()))
                 .setVersion(Version.newBuilder()
                         .setInstance(this.dtVersion.toString())
@@ -177,7 +174,11 @@ public final class WoTDTDManager implements DTDManager {
                 .setProperties(Properties.from(dtdProperties.values()))
                 .setActions(Actions.from(this.actions.values()))
                 .setForms(List.of(RootFormElement.newBuilder()
-                                .setHref(IRI.of("ws://localhost:" + this.portNumber + "/dtkg"))
+                                .setHref(IRI.of(
+                                    URI.create(this.digitalTwinUri.toString().replaceFirst("([a-zA-Z][a-zA-Z0-9+.-]*):", "ws:"))
+                                            .resolve("/dtkg")
+                                            .toString()
+                                    ))
                                 .setSubprotocol("websocket")
                                 .setOp(SingleRootFormElementOp.OBSERVEALLPROPERTIES)
                                 .build()))
@@ -214,7 +215,7 @@ public final class WoTDTDManager implements DTDManager {
                         .set(WoDTVocabulary.DOMAIN_TAG.getUri(), actionType)
                         .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false)
                         .setForms(ActionForms.of(List.of(ActionFormElement.newBuilder()
-                            .setHref(IRI.of("http://localhost:" + this.portNumber + "/action/" + rawActionName))
+                            .setHref(IRI.of(this.digitalTwinUri.resolve("/action/" + rawActionName).toString()))
                             .build())))
                         .build());
     }
