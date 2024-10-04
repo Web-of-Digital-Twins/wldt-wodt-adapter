@@ -7,7 +7,7 @@ info:
   version: 1.0.0
   title: WoDT Digital Twin API - WLDT Framework implementation
   contact:
-    email: andrea.giulianelli4@studio.unibo.it
+    email: andrea.giulianelli7@unibo.it
   license:
     name: Apache 2.0 License
     url: 'https://www.apache.org/licenses/LICENSE-2.0'
@@ -42,7 +42,7 @@ paths:
         
 
         '204':
-          description: the current Digital Twin Knwoledge Graph is empty
+          description: the current Digital Twin Knowledge Graph is empty
 
   /dtd:
     get:
@@ -59,54 +59,64 @@ paths:
               schema:
                 example: |
                   {
-                    "id": "http://localhost:3000/",
-                    "properties": {
-                        "is-on-property-key": {
-                            "type": "string",
-                            "observable": true,
-                            "readOnly": true,
-                            "@type": "https://www.w3.org/2001/XMLSchema#boolean",
-                            "https://purl.org/wodt/domainPredicate": "https://lampontology.com/ontology#isOn",
-                            "https://purl.org/wodt/augmentedInteraction": false
-                        },
-                        "located-inside": {
-                            "type": "string",
-                            "observable": true,
-                            "readOnly": true,
-                            "@type": "https://homeontology/ontology#Room",
-                            "https://purl.org/wodt/domainPredicate": "https://lampontology/ontology#isLocatedInside"
-                        },
-                        "snapshot": {
-                            "forms": [
-                                {
-                                    "href": "ws://localhost:3000/dtkg",
-                                    "op": [
-                                        "observeproperty"
-                                    ],
-                                    "subprotocol": "websocket"
-                                }
-                            ],
-                            "type": "string",
-                            "observable": true,
-                            "readOnly": true
-                        }
-                    },
-                    "actions": {
-                        "switch-action-key": {
-                            "forms": [
-                                {
-                                    "href": "http://localhost:3000/action/switch-action-key",
-                                    "op": [
-                                        "invokeaction"
-                                    ]
-                                }
-                            ]
-                        }
-                    },
-                    "@context": "https://www.w3.org/2019/wot/td/v1",
-                    "https://purl.org/wodt/version": "1.0.0",
-                    "links": [],
-                    "https://purl.org/wodt/physicalAssetId": "lampPA"
+                      "@context": "https://www.w3.org/2022/wot/td/v1.1",
+                      "id": "http://localhost:3000",
+                      "@type": "https://lampontology.com/ontology#Lamp",
+                      "version": {
+                          "instance": "1.2.3",
+                          "model": "1.0.0"
+                      },
+                      "https://purl.org/wodt/physicalAssetId": "lampPA",
+                      "securityDefinitions": {
+                          "nosec_sc": {
+                              "scheme": "nosec"
+                          }
+                      },
+                      "security": "nosec_sc",
+                      "properties": {
+                          "availableActions": {
+                              "@type": "https://purl.org/wodt/AvailableActions",
+                              "readOnly": true
+                          },
+                          "is-on-property-key": {
+                              "https://purl.org/wodt/domainTag": "https://lampontology.com/ontology#isOn",
+                              "https://purl.org/wodt/augmentedInteraction": false,
+                              "readOnly": true
+                          },
+                          "located-inside": {
+                              "https://purl.org/wodt/domainTag": "https://lampontology/ontology#isLocatedInside",
+                              "readOnly": true
+                          }
+                      },
+                      "actions": {
+                          "switch-action-key": {
+                              "https://purl.org/wodt/domainTag": "https://lampontology.com/ontology#SwitchCommand",
+                              "https://purl.org/wodt/augmentedInteraction": false,
+                              "forms": [
+                                  {
+                                      "href": "http://localhost:3000/action/switch-action-key"
+                                  }
+                              ]
+                          }
+                      },
+                      "forms": [
+                          {
+                              "href": "ws://localhost:3000/dtkg",
+                              "subprotocol": "websocket",
+                              "op": "observeallproperties"
+                          }
+                      ],
+                      "links": [
+                          {
+                              "href": "https://raw.githubusercontent.com/Web-of-Digital-Twins/dtd-conceptual-model/refs/heads/main/implementations/wot/dtd-thing-model.tm.jsonld",
+                              "rel": "type",
+                              "type": "application/tm+json"
+                          },
+                          {
+                              "href": "http://localhost:3000/dtkg",
+                              "rel": "https://purl.org/wodt/dtkg"
+                          }
+                      ]
                   }
         '204':
           description: the current Digital Twin Description is empty
@@ -128,6 +138,6 @@ paths:
             type: string
       responses:
         '202':
-          description: the action invokation has been elaborated by the WoDT Digital Twin
+          description: the action invocation has been elaborated by the WoDT Digital Twin
         '400':
           description: invalid action id provided or action currently not available
