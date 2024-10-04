@@ -18,6 +18,7 @@ package io.github.webbasedwodt.adapter;
 
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.application.component.PlatformManagementInterfaceReader;
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import io.github.webbasedwodt.model.ontology.DTOntology;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
 import org.eclipse.ditto.json.JsonObject;
@@ -56,12 +57,12 @@ import java.util.stream.Collectors;
  * a WoT Thing Description to implement the Digital Twin Description.
  */
 public final class WoTDTDManager implements DTDManager {
-    private static final String INSTANCE_VERSION = "1.0.0";
     private static final String MODEL_VERSION = "1.0.0";
     private static final String AVAILABLE_ACTIONS_PROPERTY = "availableActions";
     private static final String THING_MODEL_URL = "https://raw.githubusercontent.com/Web-of-Digital-Twins/"
             + "dtd-conceptual-model/refs/heads/main/implementations/wot/dtd-thing-model.tm.jsonld";
     private final String digitalTwinUri;
+    private final DTVersion dtVersion;
     private final String physicalAssetId;
     private final DTOntology ontology;
     private final int portNumber;
@@ -73,17 +74,20 @@ public final class WoTDTDManager implements DTDManager {
     /**
      * Default constructor.
      * @param digitalTwinUri the uri of the WoDT Digital Twin
+     * @param dtVersion the version of the dt
      * @param ontology the ontology used to obtain the semantics
      * @param physicalAssetId the id of the associated physical asset
      * @param portNumber the port number where to offer the affordances
      * @param platformManagementInterfaceReader the platform management interface reader reference
      */
     WoTDTDManager(final String digitalTwinUri,
+                  final DTVersion dtVersion,
                   final DTOntology ontology,
                   final String physicalAssetId,
                   final int portNumber,
                   final PlatformManagementInterfaceReader platformManagementInterfaceReader) {
         this.digitalTwinUri = digitalTwinUri;
+        this.dtVersion = dtVersion;
         this.ontology = ontology;
         this.physicalAssetId = physicalAssetId;
         this.portNumber = portNumber;
@@ -163,7 +167,7 @@ public final class WoTDTDManager implements DTDManager {
                 .setId(IRI.of(this.digitalTwinUri))
                 .setAtType(AtType.newSingleAtType(this.ontology.getDigitalTwinType()))
                 .setVersion(Version.newBuilder()
-                        .setInstance(INSTANCE_VERSION)
+                        .setInstance(this.dtVersion.toString())
                         .setModel(MODEL_VERSION)
                         .build())
                 .set(WoDTVocabulary.PHYSICAL_ASSET_ID.getUri(), this.physicalAssetId)

@@ -19,6 +19,7 @@ package io.github.webbasedwodt.adapter;
 import io.github.webbasedwodt.adapter.testdouble.PlatformManagementInterfaceReaderTestDouble;
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.integration.wldt.LampDTOntology;
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import io.github.webbasedwodt.model.ontology.DTOntology;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
 import org.eclipse.ditto.json.JsonKey;
@@ -41,12 +42,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WoTDTDManagerTest {
     private static final int TEST_PORT_NUMBER = 3000;
     private final DTOntology lampOntology = new LampDTOntology();
+    private final DTVersion dtVersion = new DTVersion(1, 0, 0);
     private DTDManager dtdManager;
 
     @BeforeEach
     public void init() {
         this.dtdManager = new WoTDTDManager(
                 "http://example/dt",
+                this.dtVersion,
                 this.lampOntology,
                 "lampPA",
                 TEST_PORT_NUMBER,

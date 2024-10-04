@@ -58,6 +58,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
         this.dtkgEngine = new JenaDTKGEngine(this.getConfiguration().getDigitalTwinUri());
         this.dtdManager = new WoTDTDManager(
                 this.getConfiguration().getDigitalTwinUri(),
+                this.getConfiguration().getDtVersion(),
                 this.getConfiguration().getOntology(),
                 this.getConfiguration().getPhysicalAssetId(),
                 this.getConfiguration().getPortNumber(),
