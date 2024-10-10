@@ -15,4 +15,4 @@ java-testing = [ "junit-api" ]
 [plugins]
 gitSemVer = { id = "org.danilopianini.git-sensitive-semantic-versioning", version = "3.1.7" }
 java-qa = { id = "org.danilopianini.gradle-java-qa", version = "1.57.1"}
-publish-on-central = { id = "org.danilopianini.publish-on-central", version = "5.1.8" }
+publish-on-central = { id = "org.danilopianini.publish-on-central", version = "5.1.9" }
