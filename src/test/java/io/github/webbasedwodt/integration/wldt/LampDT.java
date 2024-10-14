@@ -18,6 +18,7 @@ package io.github.webbasedwodt.integration.wldt;
 
 import io.github.webbasedwodt.adapter.WoDTDigitalAdapter;
 import io.github.webbasedwodt.adapter.WoDTDigitalAdapterConfiguration;
+import io.github.webbasedwodt.model.dtd.DTVersion;
 import it.wldt.core.engine.DigitalTwin;
 import it.wldt.core.engine.DigitalTwinEngine;
 import it.wldt.exception.EventBusException;
@@ -28,6 +29,7 @@ import it.wldt.exception.WldtEngineException;
 import it.wldt.exception.WldtRuntimeException;
 import it.wldt.exception.WldtWorkerException;
 
+import java.net.URI;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -53,8 +55,9 @@ public final class LampDT {
             digitalTwin.addDigitalAdapter(new WoDTDigitalAdapter(
                     "wodt-dt-adapter",
                     new WoDTDigitalAdapterConfiguration(
-                            "http://localhost:" + TEST_PORT_NUMBER,
-                            new LampDTOntology(),
+                            URI.create("http://localhost:" + TEST_PORT_NUMBER),
+                            new DTVersion(1, 2, 3),
+                            new LampDTSemantics(),
                             TEST_PORT_NUMBER,
                             "lampPA",
                             Set.of())

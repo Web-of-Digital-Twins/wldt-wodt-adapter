@@ -34,14 +34,16 @@ import java.util.logging.Logger;
  * The physical adapter of the lamp Digital Twins used during tests.
  */
 public final class LampPhysicalAdapter extends PhysicalAdapter {
-    private static final String IS_ON_PROPERTY_KEY = "is-on-property-key";
-    private static final String SWITCH_ACTION_KEY = "switch-action-key";
-    private static final String LOCATED_INSIDE_RELATIONSHIP_KEY = "located-inside";
+    private static final String LUMINOSITY_PROPERTY_KEY = "luminosity";
+    private static final String ILLUMINANCE_PROPERTY_KEY = "illuminance";
+    private static final String SWITCH_ACTION_KEY = "switch";
+    private static final String IS_IN_ROOM_RELATIONSHIP_KEY = "isInRoom";
+    private static final double LUMINOSITY_ON_VALUE = 85.5;
     private static final int EMULATION_WAIT_TIME = 2000;
 
     private boolean status;
-    private final PhysicalAssetRelationship<String> locatedInside =
-            new PhysicalAssetRelationship<>(LOCATED_INSIDE_RELATIONSHIP_KEY);
+    private final PhysicalAssetRelationship<String> relationshipIsInRoom =
+            new PhysicalAssetRelationship<>(IS_IN_ROOM_RELATIONSHIP_KEY);
 
     /**
      * Default constructor.
@@ -57,11 +59,11 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
             try {
                 //Create a new event to notify the variation of a Physical Property
                 this.status = !this.status;
-                final PhysicalAssetPropertyWldtEvent<Boolean> newStatus = new PhysicalAssetPropertyWldtEvent<>(
-                        IS_ON_PROPERTY_KEY,
-                        this.status
+                final PhysicalAssetPropertyWldtEvent<Double> newLuminosity = new PhysicalAssetPropertyWldtEvent<>(
+                        LUMINOSITY_PROPERTY_KEY,
+                        this.status ? LUMINOSITY_ON_VALUE : 0
                 );
-                publishPhysicalAssetPropertyWldtEvent(newStatus);
+                publishPhysicalAssetPropertyWldtEvent(newLuminosity);
                 Logger.getLogger(LampPhysicalAdapter.class.getName()).info("ACTION called: Switch");
             } catch (EventBusException e) {
                 Logger.getLogger(LampPhysicalAdapter.class.getName()).info(e.getMessage());
@@ -72,11 +74,13 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
     @Override
     public void onAdapterStart() {
         final PhysicalAssetDescription pad = new PhysicalAssetDescription();
-        final PhysicalAssetProperty<Boolean> statusProperty = new PhysicalAssetProperty<>(IS_ON_PROPERTY_KEY, this.status);
-        pad.getProperties().add(statusProperty);
+        final PhysicalAssetProperty<Double> luminosityProperty = new PhysicalAssetProperty<>(LUMINOSITY_PROPERTY_KEY, 0.0);
+        final PhysicalAssetProperty<Double> illuminanceProperty = new PhysicalAssetProperty<>(ILLUMINANCE_PROPERTY_KEY, 0.0);
+        pad.getProperties().add(luminosityProperty);
+        pad.getProperties().add(illuminanceProperty);
         final PhysicalAssetAction switchAction = new PhysicalAssetAction(SWITCH_ACTION_KEY, "status.switch", "");
         pad.getActions().add(switchAction);
-        pad.getRelationships().add(locatedInside);
+        pad.getRelationships().add(relationshipIsInRoom);
 
         try {
             this.notifyPhysicalAdapterBound(pad);
@@ -94,7 +98,7 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
 
     private void emulatedDevice() {
         try {
-            final var instance = locatedInside.createRelationshipInstance("http://example.com/house");
+            final var instance = relationshipIsInRoom.createRelationshipInstance("http://example.com/house");
             publishPhysicalAssetRelationshipCreatedWldtEvent(
                     new PhysicalAssetRelationshipInstanceCreatedWldtEvent<>(
                             instance
@@ -114,6 +118,11 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
             );
             while (true) {
                 Thread.sleep(EMULATION_WAIT_TIME);
+                final PhysicalAssetPropertyWldtEvent<Double> newIlluminance = new PhysicalAssetPropertyWldtEvent<>(
+                        ILLUMINANCE_PROPERTY_KEY,
+                        Math.random() * 100
+                );
+                publishPhysicalAssetPropertyWldtEvent(newIlluminance);
                 Logger.getLogger(LampPhysicalAdapter.class.getName()).info("STATUS: " + this.status);
             }
         } catch (EventBusException | InterruptedException e) {

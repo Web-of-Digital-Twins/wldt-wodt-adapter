@@ -17,9 +17,9 @@
 package io.github.webbasedwodt.application.component;
 
 import io.github.webbasedwodt.application.component.observer.DTKGObserver;
-import io.github.webbasedwodt.model.ontology.Individual;
-import io.github.webbasedwodt.model.ontology.Node;
-import io.github.webbasedwodt.model.ontology.Property;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationshipInstance;
 
 /**
  * This interface models the DTKGEngine component of the Abstract Architecture in a compatible way with the WLDT
@@ -32,46 +32,50 @@ public interface DTKGEngine extends DTKGEngineReader {
     void removeDigitalTwin();
 
     /**
-     * Add or update a Digital Twin property within the Digital Twin Knowledge Graph.
-     * @param property the property to add/update
-     * @param newValue the value of the property.
+     * Add a Digital Twin property within the Digital Twin Knowledge Graph.
+     * @param property the property to add
      */
-    void addDigitalTwinPropertyUpdate(Property property, Node newValue);
+    void addDigitalTwinProperty(DigitalTwinStateProperty<?> property);
+
+    /**
+     * Update a Digital Twin property within the Digital Twin Knowledge Graph.
+     * @param property the property to update
+     * @param oldProperty the old property that has been updated
+     */
+    void updateDigitalTwinProperty(DigitalTwinStateProperty<?> property, DigitalTwinStateProperty<?> oldProperty);
 
     /**
      * Remove a Digital Twin property within the Digital Twin Knowledge Graph.
      * @param property the property to delete.
      * @return true if deleted, false if not-existent.
      */
-    boolean removeProperty(Property property);
+    boolean removeProperty(DigitalTwinStateProperty<?> property);
 
     /**
      * Add a relationship with another Digital Twin.
-     * @param relationshipPredicate the associated predicate
-     * @param targetIndividual the target individual
+     * @param relationshipInstance the relationship instance to add.
      */
-    void addRelationship(Property relationshipPredicate, Individual targetIndividual);
+    void addRelationship(DigitalTwinStateRelationshipInstance<?> relationshipInstance);
 
     /**
      * Delete an existing relationship with another Digital Twin.
-     * @param relationshipPredicate the associated predicate
-     * @param targetIndividual the target individual.
+     * @param relationshipInstance the relationship instance to remove.
      * @return true if correctly deleted, false if the relationship doesn't exist
      */
-    boolean removeRelationship(Property relationshipPredicate, Individual targetIndividual);
+    boolean removeRelationship(DigitalTwinStateRelationshipInstance<?> relationshipInstance);
 
     /**
      * Add an available action on the Digital Twin Knowledge Graph.
-     * @param actionId the action identifier to identify the available action.
+     * @param action the action to add.
      */
-    void addActionId(String actionId);
+    void addAction(DigitalTwinStateAction action);
 
     /**
      * Remove an action from the Digital Twin Knowledge Graph.
-     * @param actionId the action identifier to remove
+     * @param action the action to remove
      * @return true if correctly deleted, false if the action id doesn't exist
      */
-    boolean removeActionId(String actionId);
+    boolean removeAction(DigitalTwinStateAction action);
 
     /**
      * Add a {@link DTKGObserver} that will be notified for each DTKG update.

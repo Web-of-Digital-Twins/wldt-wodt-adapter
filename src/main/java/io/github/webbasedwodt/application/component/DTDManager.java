@@ -16,46 +16,50 @@
 
 package io.github.webbasedwodt.application.component;
 
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationship;
+
 /**
  * This interface models the DTD Manager component of the Abstract Architecture.
  */
 public interface DTDManager extends DTDManagerReader {
     /**
      * Add a property to the DTD.
-     * @param rawPropertyName the raw name of the property to add
+     * @param property the property to add
      */
-    void addProperty(String rawPropertyName);
+    void addProperty(DigitalTwinStateProperty<?> property);
 
     /**
      * Remove a property from the DTD.
-     * @param rawPropertyName the raw name of the property to remove
+     * @param property the property to remove
      * @return true is correctly removed, false if not present
      */
-    boolean removeProperty(String rawPropertyName);
+    boolean removeProperty(DigitalTwinStateProperty<?> property);
 
     /**
      * Add a relationship to the DTD.
-     * @param rawRelationshipName the raw name of the relationship to add
+     * @param relationship the relationship to add
      */
-    void addRelationship(String rawRelationshipName);
+    void addRelationship(DigitalTwinStateRelationship<?> relationship);
 
     /**
      * Remove a relationship from the DTD.
-     * @param rawRelationshipName the raw name of the relationship to remove
+     * @param relationship the relationship to remove
      * @return true is correctly removed, false if not present
      */
-    boolean removeRelationship(String rawRelationshipName);
+    boolean removeRelationship(DigitalTwinStateRelationship<?> relationship);
 
     /**
      * Add an action to the DTD.
-     * @param rawActionName the raw name of the action to add
+     * @param action the action to add
      */
-    void addAction(String rawActionName);
+    void addAction(DigitalTwinStateAction action);
 
     /**
      * Remove an action from the DTD.
-     * @param rawActionName the raw name of the action to remove
+     * @param action the action to remove
      * @return true is correctly removed, false if not present
      */
-    boolean removeAction(String rawActionName);
+    boolean removeAction(DigitalTwinStateAction action);
 }

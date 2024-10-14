@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package io.github.webbasedwodt.model.ontology;
+package io.github.webbasedwodt.model.ontology.rdf;
 
-
-import java.util.Optional;
+import java.net.URI;
 
 /**
- * It models the concept of RDF Property in the context of Digital Twin Knowledge Graph.
+ * It represents an RDF Individual.
  */
-public final class Property implements Resource {
-    private final String propertyUri;
-
+public final class RdfIndividual extends RdfUriResource {
     /**
      * Default constructor.
-     * @param propertyUri the uri of the property
+     * @param resourceUri the resource URI.
      */
-    public Property(final String propertyUri) {
-        this.propertyUri = propertyUri;
-    }
-
-    @Override
-    public Optional<String> getUri() {
-        return Optional.of(this.propertyUri);
+    public RdfIndividual(final URI resourceUri) {
+        super(resourceUri);
     }
 }

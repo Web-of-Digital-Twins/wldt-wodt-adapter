@@ -16,7 +16,8 @@
 
 package io.github.webbasedwodt.adapter;
 
-import io.github.webbasedwodt.model.ontology.DTOntology;
+import io.github.webbasedwodt.model.dtd.DTVersion;
+import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -26,28 +27,33 @@ import java.util.Set;
  * Configuration for the {@link WoDTDigitalAdapter}.
  */
 public final class WoDTDigitalAdapterConfiguration {
-    private final DTOntology ontology;
-    private final String digitalTwinUri;
+    private final DigitalTwinSemantics digitalTwinSemantics;
+    private final URI digitalTwinUri;
+    private final DTVersion dtVersion;
     private final int portNumber;
     private final String physicalAssetId;
     private final Set<URI> platformToRegister;
 
     /**
      * Default constructor.
-     * @param digitalTwinUri the uri of the WoDT Digital Twin
-     * @param ontology the ontology to use for the semantics
+     * @param digitalTwinUri the uri of the WoDT Digital Twin.
+     *                       It also acts as the base URI (port included) for exposed services
+     * @param dtVersion the version of the dt
+     * @param digitalTwinSemantics the Digital Twin semantics
      * @param portNumber the port number where to expose services
      * @param physicalAssetId the id of the associated physical asset
      * @param platformToRegister the platforms to which register
      */
     public WoDTDigitalAdapterConfiguration(
-            final String digitalTwinUri,
-            final DTOntology ontology,
+            final URI digitalTwinUri,
+            final DTVersion dtVersion,
+            final DigitalTwinSemantics digitalTwinSemantics,
             final int portNumber,
             final String physicalAssetId,
             final Set<URI> platformToRegister) {
         this.digitalTwinUri = digitalTwinUri;
-        this.ontology = ontology;
+        this.dtVersion = dtVersion;
+        this.digitalTwinSemantics = digitalTwinSemantics;
         this.portNumber = portNumber;
         this.physicalAssetId = physicalAssetId;
         this.platformToRegister = new HashSet<>(platformToRegister);
@@ -57,16 +63,24 @@ public final class WoDTDigitalAdapterConfiguration {
      * Obtain the WoDT Digital Twin URI.
      * @return the URI.
      */
-    public String getDigitalTwinUri() {
+    public URI getDigitalTwinUri() {
         return this.digitalTwinUri;
+    }
+
+    /**
+     * Obtain the WoDT Digital Twin version.
+     * @return the dt version.
+     */
+    public DTVersion getDtVersion() {
+        return this.dtVersion;
     }
 
     /**
      * Obtain the ontology to describe the Digital Twin data.
      * @return the ontology.
      */
-    public DTOntology getOntology() {
-        return this.ontology;
+    public DigitalTwinSemantics getDigitalTwinSemantics() {
+        return this.digitalTwinSemantics;
     }
 
     /**

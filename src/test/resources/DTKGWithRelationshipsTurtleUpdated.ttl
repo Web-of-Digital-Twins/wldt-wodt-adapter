@@ -1,20 +1,20 @@
 <http://example.com/dt>
         a       "https://w3id.org/rec/Lamp" , "https://saref.etsi.org/core/Actuator";
         <https://brickschema.org/schema/Brick#hasLocation>
-                <http://exampleRoomDT.it>;
+                <http://roomDT.it>;
         <https://purl.org/wodt/availableActionId>
                 "switch";
         <https://saref.etsi.org/core/hasProperty>
                 <https://purl.org/onto/Illuminance> , <https://purl.org/onto/LuminosityFlux>;
         <https://saref.etsi.org/core/hasPropertyValue>
                 [ <https://saref.etsi.org/core/hasValue>
-                          "50.0"^^<http://www.w3.org/2001/XMLSchema#double>;
+                          "0.1"^^<http://www.w3.org/2001/XMLSchema#double>;
                   <https://saref.etsi.org/core/isValueOfProperty>
                           <https://purl.org/onto/Illuminance>
                 ];
         <https://saref.etsi.org/core/hasPropertyValue>
                 [ <https://saref.etsi.org/core/hasValue>
-                          "100.0"^^<http://www.w3.org/2001/XMLSchema#double>;
+                          "0.2"^^<http://www.w3.org/2001/XMLSchema#double>;
                   <https://saref.etsi.org/core/isMeasuredIn>
                           <https://qudt.org/2.1/vocab/unit/LM>;
                   <https://saref.etsi.org/core/isValueOfProperty>

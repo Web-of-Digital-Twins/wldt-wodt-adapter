@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package io.github.webbasedwodt.model.ontology;
+package io.github.webbasedwodt.model.ontology.rdf;
 
+import java.net.URI;
 import java.util.Optional;
 
 /**
- * It models an RDF resource in the context of a Digital Twin Knowledge Graph.
- * So it can be an Individual, a Property or a Blank Node.
+ * It represents an RDF Resource that has a URI, e.g., class, property, individual, and so on.
  */
-public interface Resource extends Node {
+public class RdfUriResource implements RdfResource {
+    private final URI resourceUri;
+
     /**
-     * Get the URI of the Resource.
-     * @return the uri, as an Optional String, of the resource
+     * Default constructor.
+     * @param resourceUri the resource URI.
      */
-    Optional<String> getUri();
+    public RdfUriResource(final URI resourceUri) {
+        this.resourceUri = resourceUri;
+    }
+
+    @Override
+    public final Optional<URI> getUri() {
+        return Optional.of(this.resourceUri);
+    }
 }

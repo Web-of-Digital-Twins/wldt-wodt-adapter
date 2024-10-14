@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package io.github.webbasedwodt.application.component;
+package io.github.webbasedwodt.model.ontology.rdf;
 
-import org.eclipse.ditto.wot.model.ThingDescription;
-
-import java.util.Set;
+import java.net.URI;
 
 /**
- * Reader part of the DTDManager component of the Abstract Architecture -- for ISP.
+ * It represents an RDF class.
  */
-public interface DTDManagerReader {
+public final class RdfClass extends RdfUriResource {
     /**
-     * Get the current available actions.
-     * @return the available action ids.
+     * Default constructor.
+     * @param resourceUri the resource URI.
      */
-    Set<String> getAvailableActionIds();
-
-    /**
-     * Obtain the Digital Twin Description.
-     * @return Digital Twin Description implemented with a Thing Description
-     */
-    ThingDescription getDTD();
+    public RdfClass(final URI resourceUri) {
+        super(resourceUri);
+    }
 }

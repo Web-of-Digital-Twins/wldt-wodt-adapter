@@ -18,23 +18,30 @@ package io.github.webbasedwodt.adapter;
 
 import io.github.webbasedwodt.application.component.DTKGEngine;
 import io.github.webbasedwodt.application.component.observer.DTKGObserver;
-import io.github.webbasedwodt.model.ontology.BlankNode;
-import io.github.webbasedwodt.model.ontology.Individual;
-import io.github.webbasedwodt.model.ontology.Literal;
-import io.github.webbasedwodt.model.ontology.Node;
-import io.github.webbasedwodt.model.ontology.Property;
+import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
+import io.github.webbasedwodt.model.ontology.rdf.RdfBlankNode;
+import io.github.webbasedwodt.model.ontology.rdf.RdfLiteral;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
-import org.apache.commons.lang3.tuple.Pair;
+import io.github.webbasedwodt.model.ontology.rdf.RdfUnSubjectedTriple;
+import io.github.webbasedwodt.model.ontology.rdf.RdfUriResource;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationshipInstance;
+import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFWriter;
 import org.apache.jena.shared.Lock;
+import org.apache.jena.vocabulary.RDF;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -42,17 +49,25 @@ import java.util.function.Consumer;
  * Apache Jena.
  */
 final class JenaDTKGEngine implements DTKGEngine {
+    private final DigitalTwinSemantics digitalTwinSemantics;
     private final Model dtkgModel;
     private final Resource digitalTwinResource;
     private final List<DTKGObserver> observers;
+    private final Set<String> propertyKeys;
 
     /**
      * Default constructor.
      * @param digitalTwinUri the uri of the Digital Twin for which this class creates the DTKG
+     * @param digitalTwinSemantics the digital twin semantics used for the creation of the rdf graph
      */
-    JenaDTKGEngine(final String digitalTwinUri) {
+    JenaDTKGEngine(final URI digitalTwinUri, final DigitalTwinSemantics digitalTwinSemantics) {
+        this.digitalTwinSemantics = digitalTwinSemantics;
+        this.propertyKeys = new HashSet<>();
         this.dtkgModel = ModelFactory.createDefaultModel();
-        this.digitalTwinResource = this.dtkgModel.createResource(digitalTwinUri);
+        this.digitalTwinResource = this.dtkgModel.createResource(digitalTwinUri.toString());
+        this.digitalTwinSemantics.getDigitalTwinTypes().forEach(type ->
+            this.digitalTwinResource.addProperty(RDF.type, type.getUri().get().toString())
+        );
         this.observers = new ArrayList<>();
     }
 
@@ -63,22 +78,75 @@ final class JenaDTKGEngine implements DTKGEngine {
     }
 
     @Override
-    public void addDigitalTwinPropertyUpdate(final Property property, final Node newValue) {
-        if (property.getUri().isPresent()) {
+    public void addDigitalTwinProperty(final DigitalTwinStateProperty<?> property) {
+        if (propertyKeys.contains(property.getKey())) {
+            throw new IllegalStateException("Property already present. Maybe you want to update it!");
+        }
+        final Optional<List<RdfUnSubjectedTriple>> mappedData = this.digitalTwinSemantics.mapData(property);
+        if (mappedData.isPresent()) {
+            this.writeModel(model ->
+                addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get())
+            );
+            this.propertyKeys.add(property.getKey());
+            this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Mapping for property not present.");
+        }
+    }
+
+    @Override
+    public void updateDigitalTwinProperty(
+            final DigitalTwinStateProperty<?> property,
+            final DigitalTwinStateProperty<?> oldProperty
+    ) {
+        final Optional<List<RdfUnSubjectedTriple>> oldMappedData = this.digitalTwinSemantics.mapData(oldProperty);
+        final Optional<List<RdfUnSubjectedTriple>> mappedData = this.digitalTwinSemantics.mapData(property);
+
+        if (oldMappedData.isPresent() && mappedData.isPresent()) {
             this.writeModel(model -> {
-                this.digitalTwinResource.removeAll(model.getProperty(property.getUri().get()));
-                addProperty(this.digitalTwinResource, Pair.of(property, newValue));
+                removeTriples(this.digitalTwinResource, oldMappedData.get());
+                addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get());
             });
             this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Mapping for properties not present.");
         }
     }
 
     @Override
-    public boolean removeProperty(final Property property) {
-        if (property.getUri().isPresent()
-                && this.digitalTwinResource.hasProperty(this.dtkgModel.getProperty(property.getUri().get()))) {
+    public boolean removeProperty(final DigitalTwinStateProperty<?> property) {
+        final Optional<List<RdfUnSubjectedTriple>> mappedData = this.digitalTwinSemantics.mapData(property);
+        if (propertyKeys.contains(property.getKey()) && mappedData.isPresent()) {
             this.writeModel(model ->
-                this.digitalTwinResource.removeAll(model.getProperty(property.getUri().get()))
+                removeTriples(this.digitalTwinResource, mappedData.get())
+            );
+            this.propertyKeys.remove(property.getKey());
+            this.notifyObservers();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void addRelationship(final DigitalTwinStateRelationshipInstance<?> relationshipInstance) {
+        final Optional<List<RdfUnSubjectedTriple>> mappedData = this.digitalTwinSemantics.mapData(relationshipInstance);
+        if (mappedData.isPresent()) {
+            this.writeModel(model ->
+                addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get())
+            );
+            this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Mapping for relationship not present.");
+        }
+    }
+
+    @Override
+    public boolean removeRelationship(final DigitalTwinStateRelationshipInstance<?> relationshipInstance) {
+        final Optional<List<RdfUnSubjectedTriple>> mappedData = this.digitalTwinSemantics.mapData(relationshipInstance);
+        if (mappedData.isPresent()) {
+            this.writeModel(model ->
+                removeTriples(this.digitalTwinResource, mappedData.get())
             );
             this.notifyObservers();
             return true;
@@ -88,58 +156,29 @@ final class JenaDTKGEngine implements DTKGEngine {
     }
 
     @Override
-    public void addRelationship(final Property relationshipPredicate, final Individual targetIndividual) {
-        if (relationshipPredicate.getUri().isPresent()) {
-            this.writeModel(model ->
-                    addProperty(this.digitalTwinResource, Pair.of(relationshipPredicate, targetIndividual))
-            );
-            this.notifyObservers();
-        }
-    }
-
-    @Override
-    public boolean removeRelationship(final Property relationshipPredicate, final Individual targetIndividual) {
-        if (relationshipPredicate.getUri().isPresent()
-                && targetIndividual.getUri().isPresent()
-                && this.digitalTwinResource.hasProperty(this.dtkgModel.getProperty(relationshipPredicate.getUri().get()))) {
-            this.writeModel(model ->
-                    model.remove(
-                            this.digitalTwinResource,
-                            this.dtkgModel.getProperty(relationshipPredicate.getUri().get()),
-                            model.getResource(targetIndividual.getUri().get())
-                    )
-            );
-            this.notifyObservers();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public void addActionId(final String actionId) {
+    public void addAction(final DigitalTwinStateAction action) {
         this.writeModel(model ->
-                this.digitalTwinResource.addLiteral(
-                        this.dtkgModel.createProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
-                        actionId
-                )
+            this.digitalTwinResource.addLiteral(
+                this.dtkgModel.createProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
+                action.getKey()
+            )
         );
         this.notifyObservers();
     }
 
     @Override
-    public boolean removeActionId(final String actionId) {
+    public boolean removeAction(final DigitalTwinStateAction action) {
         if (this.dtkgModel.containsLiteral(
-                this.digitalTwinResource,
-                this.dtkgModel.getProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
-                actionId)
+            this.digitalTwinResource,
+            this.dtkgModel.getProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
+            action.getKey())
         ) {
             this.writeModel(model ->
-                    model.remove(
-                            this.digitalTwinResource,
-                            model.getProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
-                            ResourceFactory.createStringLiteral(actionId)
-                    )
+                model.remove(
+                    this.digitalTwinResource,
+                    model.getProperty(WoDTVocabulary.AVAILABLE_ACTION_ID.getUri()),
+                    model.createTypedLiteral(action.getKey())
+                )
             );
             return true;
         }
@@ -162,36 +201,55 @@ final class JenaDTKGEngine implements DTKGEngine {
     }
 
     private void notifyObservers() {
-        final String currentDTKG = this.getCurrentDigitalTwinKnowledgeGraph();
-        this.observers.forEach(observer -> observer.notifyNewDTKG(currentDTKG));
+        final String currentDtkg = this.getCurrentDigitalTwinKnowledgeGraph();
+        this.observers.forEach(observer -> observer.notifyNewDTKG(currentDtkg));
     }
 
-    private void addProperty(final Resource resourceToAdd, final Pair<Property, Node> predicate) {
-        final String propertyUri = predicate.getLeft().getUri().orElse("");
-        final var property = this.dtkgModel.createProperty(propertyUri);
-        if (predicate.getRight() instanceof Property) {
-            resourceToAdd.addProperty(
+    private void addTriples(final Model model, final Resource resourceToAdd, final List<RdfUnSubjectedTriple> tripleList) {
+        tripleList.forEach(triple -> {
+            final String predicateUri = triple.getTriplePredicate().getUri().map(URI::toString).orElse("");
+            final var property = model.createProperty(predicateUri);
+            if (triple.getTripleObject() instanceof RdfBlankNode) {
+                final Resource blankNode = model.createResource(
+                        new AnonId(((RdfBlankNode) triple.getTripleObject()).getBlankNodeId()));
+                this.addTriples(model, blankNode, ((RdfBlankNode) triple.getTripleObject()).getPredicates());
+                resourceToAdd.addProperty(property, blankNode);
+            } else if (triple.getTripleObject() instanceof RdfLiteral<?>) {
+                resourceToAdd.addLiteral(property, ((RdfLiteral<?>) triple.getTripleObject()).getValue());
+            } else if (triple.getTripleObject() instanceof RdfUriResource) {
+                resourceToAdd.addProperty(
                     property,
-                    dtkgModel.createProperty(((Property) predicate.getRight()).getUri().orElse(""))
-            );
-        } else if (predicate.getRight() instanceof BlankNode) {
-            resourceToAdd.addProperty(
-                    property,
-                    addProperties(this.dtkgModel.createResource(), ((BlankNode) predicate.getRight()).getPredicates())
-            );
-        } else if (predicate.getRight() instanceof Literal<?>) {
-            resourceToAdd.addLiteral(property, ((Literal<?>) predicate.getRight()).getValue());
-        } else if (predicate.getRight() instanceof Individual) {
-            resourceToAdd.addProperty(
-                    property,
-                    this.dtkgModel.createResource(((Individual) predicate.getRight()).getUri().orElse(""))
-            );
-        }
+                        model.createResource(((RdfUriResource) triple.getTripleObject())
+                        .getUri()
+                        .map(URI::toString)
+                        .orElse("")
+                    )
+                );
+            }
+        });
     }
 
-    private Resource addProperties(final Resource resourceToAdd, final List<Pair<Property, Node>> predicates) {
-        predicates.forEach(predicate -> addProperty(resourceToAdd, predicate));
-        return resourceToAdd;
+    private void removeTriples(final Resource resource, final List<RdfUnSubjectedTriple> tripleList) {
+        tripleList.forEach(triple -> {
+            if (triple.getTripleObject() instanceof RdfBlankNode) {
+                final Model modelToRemove = ModelFactory.createDefaultModel();
+                final Resource resourceOfTheModelToRemove = modelToRemove.createResource(resource.getURI());
+                this.addTriples(modelToRemove, resourceOfTheModelToRemove, List.of(triple));
+                this.dtkgModel.remove(modelToRemove);
+            } else if (triple.getTripleObject() instanceof RdfLiteral<?>) {
+                this.dtkgModel.remove(
+                    resource,
+                    this.dtkgModel.getProperty(triple.getTriplePredicate().getUri().map(URI::toString).orElse("")),
+                    this.dtkgModel.createTypedLiteral(((RdfLiteral<?>) triple.getTripleObject()).getValue())
+                );
+            } else if (triple.getTripleObject() instanceof RdfUriResource) {
+                this.dtkgModel.remove(
+                    resource,
+                    this.dtkgModel.getProperty(triple.getTriplePredicate().getUri().map(URI::toString).orElse("")),
+                    this.dtkgModel.getResource(((RdfUriResource) triple.getTripleObject()).getUri().map(URI::toString).orElse(""))
+                );
+            }
+        });
     }
 
     private void writeModel(final Consumer<Model> modelConsumer) {
