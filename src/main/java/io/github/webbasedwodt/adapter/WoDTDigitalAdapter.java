@@ -55,11 +55,13 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
         super(digitalAdapterId, configuration);
         this.platformManagementInterface = new BasePlatformManagementInterface(
                 this.getConfiguration().getDigitalTwinUri());
-        this.dtkgEngine = new JenaDTKGEngine(this.getConfiguration().getDigitalTwinUri());
+        this.dtkgEngine = new JenaDTKGEngine(
+                this.getConfiguration().getDigitalTwinUri(),
+                this.getConfiguration().getDigitalTwinSemantics());
         this.dtdManager = new WoTDTDManager(
                 this.getConfiguration().getDigitalTwinUri(),
                 this.getConfiguration().getDtVersion(),
-                this.getConfiguration().getOntology(),
+                this.getConfiguration().getDigitalTwinSemantics(),
                 this.getConfiguration().getPhysicalAssetId(),
                 this.platformManagementInterface
         );
@@ -101,7 +103,25 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                     case PROPERTY:
                     case PROPERTY_VALUE:
                         if (changedResource instanceof DigitalTwinStateProperty<?>) {
-                            this.handlePropertyUpdate((DigitalTwinStateProperty<?>) changedResource, operationPerformed);
+                            if (previousDigitalTwinState != null) {
+                                try {
+                                    this.handlePropertyUpdate(
+                                            (DigitalTwinStateProperty<?>) changedResource,
+                                            previousDigitalTwinState.getProperty(
+                                                    ((DigitalTwinStateProperty<?>) changedResource)
+                                                    .getKey())
+                                                    .orElse(null),
+                                            operationPerformed);
+                                } catch (WldtDigitalTwinStatePropertyException e) {
+                                    this.handlePropertyUpdate((DigitalTwinStateProperty<?>) changedResource,
+                                            null,
+                                            operationPerformed);
+                                }
+                            } else {
+                                this.handlePropertyUpdate((DigitalTwinStateProperty<?>) changedResource,
+                                        null,
+                                        operationPerformed);
+                            }
                         }
                         break;
                     case RELATIONSHIP:
@@ -133,27 +153,24 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
 
     private void handlePropertyUpdate(
             final DigitalTwinStateProperty<?> updatedProperty,
+            final DigitalTwinStateProperty<?> oldProperty,
             final DigitalTwinStateChange.Operation operationPerformed
     ) {
         switch (operationPerformed) {
             case OPERATION_ADD:
-                this.dtdManager.addProperty(updatedProperty.getKey());
+                this.dtdManager.addProperty(updatedProperty);
                 break;
             case OPERATION_REMOVE:
-                this.getConfiguration()
-                    .getOntology()
-                    .obtainProperty(updatedProperty.getKey())
-                    .ifPresent(this.dtkgEngine::removeProperty);
-                this.dtdManager.removeProperty(updatedProperty.getKey());
+                this.dtkgEngine.removeProperty(updatedProperty);
+                this.dtdManager.removeProperty(updatedProperty);
                 break;
             case OPERATION_UPDATE:
             case OPERATION_UPDATE_VALUE:
-                this.getConfiguration().getOntology().convertPropertyValue(
-                    updatedProperty.getKey(),
-                    updatedProperty.getValue()
-                ).ifPresent(triple ->
-                    this.dtkgEngine.addDigitalTwinPropertyUpdate(triple.getLeft(), triple.getRight())
-                );
+                if (oldProperty == null) {
+                    this.dtkgEngine.addDigitalTwinProperty(updatedProperty);
+                } else {
+                    this.dtkgEngine.updateDigitalTwinProperty(updatedProperty, oldProperty);
+                }
                 break;
             default:
                 break;
@@ -166,10 +183,10 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     ) {
         switch (operationPerformed) {
             case OPERATION_ADD:
-                this.dtdManager.addRelationship(updatedRelationship.getName());
+                this.dtdManager.addRelationship(updatedRelationship);
                 break;
             case OPERATION_REMOVE:
-                this.dtdManager.removeRelationship(updatedRelationship.getName());
+                this.dtdManager.removeRelationship(updatedRelationship);
                 break;
             default:
                 break;
@@ -182,20 +199,10 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     ) {
         switch (operationPerformed) {
             case OPERATION_ADD:
-                this.getConfiguration().getOntology().convertRelationship(
-                    updatedRelationshipInstance.getRelationshipName(),
-                    updatedRelationshipInstance.getTargetId().toString()
-                ).ifPresent(triple ->
-                    this.dtkgEngine.addRelationship(triple.getLeft(), triple.getRight())
-                );
+                this.dtkgEngine.addRelationship(updatedRelationshipInstance);
                 break;
             case OPERATION_REMOVE:
-                this.getConfiguration().getOntology().convertRelationship(
-                    updatedRelationshipInstance.getRelationshipName(),
-                    updatedRelationshipInstance.getTargetId().toString()
-                ).ifPresent(triple ->
-                    this.dtkgEngine.removeRelationship(triple.getLeft(), triple.getRight())
-                );
+                this.dtkgEngine.removeRelationship(updatedRelationshipInstance);
                 break;
             default:
                 break;
@@ -208,14 +215,14 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     ) {
         switch (operationPerformed) {
             case OPERATION_ADD: // adds and enables the action
-                this.dtdManager.addAction(updatedAction.getKey());
-                this.dtkgEngine.addActionId(updatedAction.getKey());
+                this.dtdManager.addAction(updatedAction);
+                this.dtkgEngine.addAction(updatedAction);
                 break;
             case OPERATION_REMOVE: // only disables the action
-                this.dtkgEngine.removeActionId(updatedAction.getKey());
+                this.dtkgEngine.removeAction(updatedAction);
                 break;
             case OPERATION_UPDATE: // enables the action
-                this.dtkgEngine.addActionId(updatedAction.getKey());
+                this.dtkgEngine.addAction(updatedAction);
                 break;
             default:
                 break;
@@ -239,20 +246,15 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
         try {
             digitalTwinState.getPropertyList().ifPresent(properties ->
                     properties.forEach(property -> {
-                        this.getConfiguration().getOntology().convertPropertyValue(
-                                property.getKey(),
-                                property.getValue()
-                        ).ifPresent(triple ->
-                                this.dtkgEngine.addDigitalTwinPropertyUpdate(triple.getLeft(), triple.getRight())
-                        );
-                        this.dtdManager.addProperty(property.getKey());
+                        this.dtkgEngine.addDigitalTwinProperty(property);
+                        this.dtdManager.addProperty(property);
                     }));
             digitalTwinState.getRelationshipList().ifPresent(relationships ->
-                    relationships.forEach(relationship -> this.dtdManager.addRelationship(relationship.getName())));
+                    relationships.forEach(this.dtdManager::addRelationship));
             digitalTwinState.getActionList().ifPresent(actions ->
                     actions.forEach(action -> {
-                        this.dtdManager.addAction(action.getKey());
-                        this.dtkgEngine.addActionId(action.getKey());
+                        this.dtdManager.addAction(action);
+                        this.dtkgEngine.addAction(action);
                     }));
         } catch (WldtDigitalTwinStatePropertyException | WldtDigitalTwinStateActionException e) {
             Logger.getLogger(WoDTDigitalAdapter.class.getName()).info("Error during loading: " + e);
