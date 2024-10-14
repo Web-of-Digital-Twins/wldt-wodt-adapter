@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2023-2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,10 @@
  * limitations under the License.
  */
 
-package io.github.webbasedwodt.model.ontology;
+package io.github.webbasedwodt.model.ontology.rdf;
 
 /**
- * It models the concept of RDF Literal.
- * @param <T> the type of the literal.
+ * It models the concept of RDF node in the context of a Digital Twin Knowledge Graph.
+ * A Node can be anything in the Knowledge Graph from RDF Resources to Literals.
  */
-public final class Literal<T> implements Node {
-    private final T value;
-
-    /**
-     * Default constructor.
-     * @param value the value of the literal
-     */
-    public Literal(final T value) {
-        this.value = value;
-    }
-
-    /**
-     * Getter.
-     * @return the literal
-     */
-    public T getValue() {
-        return this.value;
-    }
-}
+public interface RdfNode { }

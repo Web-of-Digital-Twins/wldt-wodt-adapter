@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Andrea Giulianelli
+ * Copyright (c) 2024. Andrea Giulianelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package io.github.webbasedwodt.model.ontology;
+package io.github.webbasedwodt.model.ontology.rdf;
+
+import java.net.URI;
 
 /**
- * It models the concept of RDF node in the context of a Digital Twin Knowledge Graph.
- * A Node can be anything in the Knowledge Graph from RDF Resources to Literals.
+ * It represents an RDF Property.
  */
-public interface Node { }
+public final class RdfProperty extends RdfUriResource {
+    /**
+     * Default constructor.
+     * @param resourceUri the resource URI.
+     */
+    public RdfProperty(final URI resourceUri) {
+        super(resourceUri);
+    }
+}
