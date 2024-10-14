@@ -171,7 +171,7 @@ public final class WoTDTDManager implements DTDManager {
                         this.digitalTwinSemantics.getDigitalTwinTypes()
                             .stream()
                             .map(type -> AtType.newSingleAtType(type.getUri().map(URI::toString).orElse("")))
-                            .toList()
+                            .collect(Collectors.toList())
                     )
                 )
                 .setVersion(Version.newBuilder()
