@@ -19,8 +19,12 @@ package io.github.webbasedwodt.adapter;
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.application.component.PlatformManagementInterfaceReader;
 import io.github.webbasedwodt.model.dtd.DTVersion;
-import io.github.webbasedwodt.model.ontology.DTOntology;
+import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
+import io.github.webbasedwodt.model.ontology.rdf.RdfUriResource;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationship;
 import org.eclipse.ditto.json.JsonObject;
 import org.eclipse.ditto.json.JsonObjectBuilder;
 
@@ -65,7 +69,7 @@ public final class WoTDTDManager implements DTDManager {
     private final URI digitalTwinUri;
     private final DTVersion dtVersion;
     private final String physicalAssetId;
-    private final DTOntology ontology;
+    private final DigitalTwinSemantics digitalTwinSemantics;
     private final PlatformManagementInterfaceReader platformManagementInterfaceReader;
     private final Map<String, Property> properties;
     private final Map<String, Property> relationships;
@@ -75,18 +79,18 @@ public final class WoTDTDManager implements DTDManager {
      * Default constructor.
      * @param digitalTwinUri the uri of the WoDT Digital Twin
      * @param dtVersion the version of the dt
-     * @param ontology the ontology used to obtain the semantics
+     * @param digitalTwinSemantics the Digital Twin semantics
      * @param physicalAssetId the id of the associated physical asset
      * @param platformManagementInterfaceReader the platform management interface reader reference
      */
     WoTDTDManager(final URI digitalTwinUri,
                   final DTVersion dtVersion,
-                  final DTOntology ontology,
+                  final DigitalTwinSemantics digitalTwinSemantics,
                   final String physicalAssetId,
                   final PlatformManagementInterfaceReader platformManagementInterfaceReader) {
         this.digitalTwinUri = digitalTwinUri;
         this.dtVersion = dtVersion;
-        this.ontology = ontology;
+        this.digitalTwinSemantics = digitalTwinSemantics;
         this.physicalAssetId = physicalAssetId;
         this.platformManagementInterfaceReader = platformManagementInterfaceReader;
         this.properties = new HashMap<>();
@@ -95,35 +99,35 @@ public final class WoTDTDManager implements DTDManager {
     }
 
     @Override
-    public void addProperty(final String rawPropertyName) {
-        this.createDTDProperty(rawPropertyName, true)
-                .ifPresent(property -> this.properties.put(rawPropertyName, property));
+    public void addProperty(final DigitalTwinStateProperty<?> property) {
+        this.createDTDProperty(property)
+                .ifPresent(wotProperty -> this.properties.put(property.getKey(), wotProperty));
     }
 
     @Override
-    public boolean removeProperty(final String rawPropertyName) {
-        return this.properties.remove(rawPropertyName) != null;
+    public boolean removeProperty(final DigitalTwinStateProperty<?> property) {
+        return this.properties.remove(property.getKey()) != null;
     }
 
     @Override
-    public void addRelationship(final String rawRelationshipName) {
-        this.createDTDProperty(rawRelationshipName, false)
-                .ifPresent(relationship -> this.relationships.put(rawRelationshipName, relationship));
+    public void addRelationship(final DigitalTwinStateRelationship<?> relationship) {
+        this.createDTDProperty(relationship)
+                .ifPresent(wotRelationship -> this.relationships.put(relationship.getName(), wotRelationship));
     }
 
     @Override
-    public boolean removeRelationship(final String rawRelationshipName) {
-        return this.relationships.remove(rawRelationshipName) != null;
+    public boolean removeRelationship(final DigitalTwinStateRelationship<?> relationship) {
+        return this.relationships.remove(relationship.getName()) != null;
     }
 
     @Override
-    public void addAction(final String rawActionName) {
-        this.createDTDAction(rawActionName).ifPresent(action -> this.actions.put(rawActionName, action));
+    public void addAction(final DigitalTwinStateAction action) {
+        this.createDTDAction(action).ifPresent(wotAction -> this.actions.put(action.getKey(), wotAction));
     }
 
     @Override
-    public boolean removeAction(final String rawActionName) {
-        return this.actions.remove(rawActionName) != null;
+    public boolean removeAction(final DigitalTwinStateAction action) {
+        return this.actions.remove(action.getKey()) != null;
     }
 
     @Override
@@ -162,7 +166,14 @@ public final class WoTDTDManager implements DTDManager {
         return ThingDescription.newBuilder()
                 .setAtContext(AtContext.newSingleUriAtContext(SingleUriAtContext.W3ORG_2022_WOT_TD_V11))
                 .setId(IRI.of(this.digitalTwinUri.toString()))
-                .setAtType(AtType.newSingleAtType(this.ontology.getDigitalTwinType()))
+                .setAtType(
+                    AtType.newMultipleAtType(
+                        this.digitalTwinSemantics.getDigitalTwinTypes()
+                            .stream()
+                            .map(type -> AtType.newSingleAtType(type.getUri().map(URI::toString).orElse("")))
+                            .toList()
+                    )
+                )
                 .setVersion(Version.newBuilder()
                         .setInstance(this.dtVersion.toString())
                         .setModel(MODEL_VERSION)
@@ -187,36 +198,49 @@ public final class WoTDTDManager implements DTDManager {
 
     }
 
-    private Optional<Property> createDTDProperty(
-            final String rawPropertyName,
-            final boolean indicateAugmentation
-    ) {
-        final Optional<String> domainPredicateUri = this.ontology
-                .obtainProperty(rawPropertyName)
-                .flatMap(io.github.webbasedwodt.model.ontology.Property::getUri);
+    private Optional<Property> createDTDProperty(final DigitalTwinStateProperty<?> dtProperty) {
+        final Optional<String> domainTag = this.digitalTwinSemantics.getDomainTag(dtProperty)
+                .flatMap(RdfUriResource::getUri)
+                .map(URI::toString);
 
-        if (domainPredicateUri.isPresent()) {
+        if (domainTag.isPresent()) {
             final JsonObjectBuilder metadata = JsonObject.newBuilder()
-                    .set(WoDTVocabulary.DOMAIN_TAG.getUri(), domainPredicateUri.get());
-            if (indicateAugmentation) {
-                metadata.set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false);
-            }
+                    .set(WoDTVocabulary.DOMAIN_TAG.getUri(), domainTag.get())
+                    .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false);
 
-            return Optional.of(Property.newBuilder(rawPropertyName, metadata.build())
+            return Optional.of(Property.newBuilder(dtProperty.getKey(), metadata.build())
                             .setReadOnly(true)
                             .build());
         }
         return Optional.empty();
     }
 
-    private Optional<Action> createDTDAction(final String rawActionName) {
-        return this.ontology.obtainActionType(rawActionName)
-                .map(actionType -> Action.newBuilder(rawActionName)
-                        .set(WoDTVocabulary.DOMAIN_TAG.getUri(), actionType)
-                        .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false)
-                        .setForms(ActionForms.of(List.of(ActionFormElement.newBuilder()
-                            .setHref(IRI.of(this.digitalTwinUri.resolve("/action/" + rawActionName).toString()))
-                            .build())))
-                        .build());
+    private Optional<Property> createDTDProperty(final DigitalTwinStateRelationship<?> dtRelationship) {
+        final Optional<String> domainTag = this.digitalTwinSemantics.getDomainTag(dtRelationship)
+            .flatMap(RdfUriResource::getUri)
+            .map(URI::toString);
+
+        if (domainTag.isPresent()) {
+            final JsonObjectBuilder metadata = JsonObject.newBuilder()
+                .set(WoDTVocabulary.DOMAIN_TAG.getUri(), domainTag.get());
+
+            return Optional.of(Property.newBuilder(dtRelationship.getName(), metadata.build())
+                .setReadOnly(true)
+                .build());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Action> createDTDAction(final DigitalTwinStateAction action) {
+        return this.digitalTwinSemantics.getDomainTag(action)
+            .flatMap(RdfUriResource::getUri)
+            .map(URI::toString)
+            .map(actionDomainTag -> Action.newBuilder(action.getKey())
+                .set(WoDTVocabulary.DOMAIN_TAG.getUri(), actionDomainTag)
+                .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false)
+                .setForms(ActionForms.of(List.of(ActionFormElement.newBuilder()
+                    .setHref(IRI.of(this.digitalTwinUri.resolve("/action/" + action.getKey()).toString()))
+                    .build())))
+                .build());
     }
 }
