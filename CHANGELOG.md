@@ -1,3 +1,13 @@
+## [5.0.1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.0...5.0.1) (2024-10-14)
+
+### Dependency updates
+
+* **deps:** update dependency org.eclipse.ditto:ditto-wot-model to v3.6.0 ([9e0f747](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/9e0f74716dbd3502631073d406d00eff66e644d3))
+
+### Bug Fixes
+
+* set digital twin type as classes ([3cef914](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/3cef914bd79d14e966920d118de2f4e080c7f446))
+
 ## [5.0.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/4.1.0...5.0.0) (2024-10-14)
 
 ### ⚠ BREAKING CHANGES
