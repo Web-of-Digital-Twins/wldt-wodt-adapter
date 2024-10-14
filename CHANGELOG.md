@@ -1,3 +1,65 @@
+## [5.0.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/4.1.0...5.0.0) (2024-10-14)
+
+### ⚠ BREAKING CHANGES
+
+* align the adapter to the DTD 1.0.0 and enrich semantics
+* improve the semantics capabilities of a wldt wodt dt
+* improve rdf modeling capabilities
+* make dt base uri configurable
+* make dt version configurable
+* implement dtd 1.0.0 with wot td and use of ditto-wot-model
+
+### Features
+
+* align the adapter to the DTD 1.0.0 and enrich semantics ([654d9d8](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/654d9d8fcc7473ab3a3c840af4a4cb8529e281e4))
+* align wodt vocabulary to dtd 1.0.0 ([8085bee](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8085beeddf622409f39f2c44c237970deb108808))
+* create the concept of digital twin semantics ([6a22dfe](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/6a22dfe5c0d4cdc3ce42eef47b14d9d8ae8098cb))
+* implement dtd 1.0.0 with wot td and use of ditto-wot-model ([8b1d994](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8b1d9948c44fd5f56fde4bc689ff535d585c299c))
+* improve rdf modeling capabilities ([974cf36](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/974cf3615438d6365e44c1681360997949047f26))
+* improve the dtkg engine to handle complex rdf graphs ([f1ccf09](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f1ccf09d99b1052d24225878c8576da93405fa44))
+* improve the semantics capabilities of a wldt wodt dt ([f60bebb](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f60bebb1be3a0461ef5ce4924c4053ea83a2b622))
+* link the DTKG directly at the DTD-level ([5ca370c](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/5ca370cfb4cc0731a8814033524e54797cdb9fb3))
+* make dt base uri configurable ([80909bf](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/80909bfe6936e174aa0db9c71f8c60a911cc7d4c))
+* make dt version configurable ([ae4b48d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/ae4b48d79422f369689ac630041f3378aee040d2))
+
+### Dependency updates
+
+* **deps:** add ditto-wot-model dependency ([b32c164](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/b32c164b2e764c97258512ab03fac7ac1549183c))
+* **deps:** remove wot servient sanecity dependency ([eedd589](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/eedd5894947b8921aa0fceac966c097c2cffd63d))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.110 ([f4aea41](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f4aea412d87c09a8e8ad7a1c3cd50d4222f1b524))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.111 ([e7c5f24](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/e7c5f2459f8db0939aea812dcb0c69a403982804))
+* **deps:** update junit5 monorepo to v5.11.2 ([a9502d7](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/a9502d78be78a8ae1f1f8f779be6005b55acde11))
+* **deps:** update node.js to 20.18 ([832bf61](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/832bf617a676812314183f881d76357dc61ecfaf))
+* **deps:** update plugin publish-on-central to v5.1.9 ([6edb744](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/6edb744141d5a5c5b480ab94ea55de16334d2d92))
+
+### Bug Fixes
+
+* use jdk 11 elements ([da05edb](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/da05edb38e1d31518431b1cf82ed3c81b52b0b8b))
+
+### Documentation
+
+* align rest-api documentation ([559d57e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/559d57e30a94479002a41534e0b35a2548784f72))
+* **rest-api:** align to new dtd name ([f52bb8a](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f52bb8a51c7a7eacd3b45ce3ebfae2ac8f80124e))
+
+### Tests
+
+* adapt digital interface tests ([2c47234](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/2c47234c772837601ae8baa7a3d2b910f932a175))
+* add test for dt version value object ([d913ff0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/d913ff07a2b5cd4bb8b027a95548ff34826f5587))
+* add tests for additional metadata in dtd 1.0.0 ([7dffd73](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/7dffd73c6ab7f73fce4e9aafb71c29994dae080a))
+* align integration test ([da000a2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/da000a2d2df3f53758e13b3d5b5c973de24c729b))
+* fix wot dtd manager tests ([fa5f516](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/fa5f516eb01aa51b4d98b8eca875a7aad2c510e9))
+* improve tests for the dtkg engine ([f2a1d6e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f2a1d6ecf6de284997ca73c2c63cdda40d5cfdfa))
+
+### Build and continuous integration
+
+* **deps:** update codecov/codecov-action action to v4.6.0 ([af25441](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/af25441d824255c3059453873e0bab7093c48f7f))
+
+### General maintenance
+
+* adapt wot dtd manager to new dt semantics ([ef3293f](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/ef3293f29d968c733198c0c5387899b9f3ffe09f))
+* add dt version value object ([c61312a](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/c61312acf7e93172d5ac5e16630278817d47cbf3))
+* remove dtkg link header when returning dtd since already present within it ([cb2bc82](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/cb2bc8280fe5f4253bf6b89e6bb4cd4e62e5da38))
+
 ## [4.1.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/4.0.0...4.1.0) (2024-10-01)
 
 ### Features
