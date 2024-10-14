@@ -66,7 +66,10 @@ final class JenaDTKGEngine implements DTKGEngine {
         this.dtkgModel = ModelFactory.createDefaultModel();
         this.digitalTwinResource = this.dtkgModel.createResource(digitalTwinUri.toString());
         this.digitalTwinSemantics.getDigitalTwinTypes().forEach(type ->
-            this.digitalTwinResource.addProperty(RDF.type, type.getUri().get().toString())
+            this.digitalTwinResource.addProperty(
+                    RDF.type,
+                    this.dtkgModel.createResource(type.getUri().map(URI::toString).orElse(""))
+            )
         );
         this.observers = new ArrayList<>();
     }

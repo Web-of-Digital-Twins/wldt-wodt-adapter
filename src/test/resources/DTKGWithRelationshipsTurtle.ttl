@@ -1,5 +1,5 @@
 <http://example.com/dt>
-        a       "https://w3id.org/rec/Lamp" , "https://saref.etsi.org/core/Actuator";
+        a       <https://w3id.org/rec/Lamp> , <https://saref.etsi.org/core/Actuator>;
         <https://brickschema.org/schema/Brick#hasLocation>
                 <http://exampleRoomDT.it>;
         <https://purl.org/wodt/availableActionId>
