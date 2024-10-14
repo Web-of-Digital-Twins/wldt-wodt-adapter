@@ -16,12 +16,12 @@
 
 package io.github.webbasedwodt.adapter;
 
-import io.github.webbasedwodt.model.ontology.Individual;
-import io.github.webbasedwodt.model.ontology.Literal;
-import io.github.webbasedwodt.model.ontology.Node;
-import io.github.webbasedwodt.model.ontology.Property;
+import io.github.webbasedwodt.integration.wldt.LampDTSemantics;
 import io.github.webbasedwodt.utils.TestingUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationshipInstance;
+import it.wldt.exception.WldtDigitalTwinStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,39 +37,59 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Test for {@link JenaDTKGEngine}.
  */
 class JenaDTKGEngineTest {
-    private final List<Pair<Property, Node>> propertyList = List.of(
-        Pair.of(new Property("https://healthcareontology.com/ontology#isBusy"), new Literal<>(true)),
-        Pair.of(new Property("https://healthcareontology.com/ontology#hasFuelLevel"), new Literal<>(37.0))
+    private final List<DigitalTwinStateProperty<?>> properties = List.of(
+        new DigitalTwinStateProperty<>("luminosity", 100),
+        new DigitalTwinStateProperty<>("illuminance", 50)
+    );
+    private final List<DigitalTwinStateProperty<?>> modifiedProperties = List.of(
+        new DigitalTwinStateProperty<>("luminosity", 0.20),
+        new DigitalTwinStateProperty<>("illuminance", 0.10)
+    );
+    private final List<DigitalTwinStateRelationshipInstance<?>> relationships = List.of(
+        new DigitalTwinStateRelationshipInstance<>("isInRoom", "http://exampleRoomDT.it", "isInRoom-http://exampleRoomDT.it")
+    );
+    private final List<DigitalTwinStateRelationshipInstance<?>> modifiedRelationships = List.of(
+            new DigitalTwinStateRelationshipInstance<>("isInRoom", "http://roomDT.it", "isInRoom-http://exampleRoomDT.it")
     );
 
-    private final List<Pair<Property, Node>> modifiedPropertyList = List.of(
-            Pair.of(new Property("https://healthcareontology.com/ontology#isBusy"), new Literal<>(false)),
-            Pair.of(new Property("https://healthcareontology.com/ontology#hasFuelLevel"), new Literal<>(39.0))
-    );
-
-    private final List<Pair<Property, Individual>> relationshipList = List.of(
-        Pair.of(new Property("https://smartcityontology.com/ontology#isApproaching"), new Individual("intersection"))
-    );
-
-    private final List<String> actionsList = List.of("switch-on");
+    private final List<DigitalTwinStateAction> actionsList = List.of(new DigitalTwinStateAction("switch", "status.switch", ""));
 
     private JenaDTKGEngine dtkgEngine;
 
+    JenaDTKGEngineTest() throws WldtDigitalTwinStateException {
+        // This constructor is intentionally empty. Nothing special is needed here.
+    }
+
     @BeforeEach
     public void init() {
-        this.dtkgEngine = new JenaDTKGEngine(URI.create("http://example.com/dt"));
-        this.propertyList.forEach(property ->
-                this.dtkgEngine.addDigitalTwinPropertyUpdate(property.getLeft(), property.getRight())
+        this.dtkgEngine = new JenaDTKGEngine(URI.create("http://example.com/dt"), new LampDTSemantics());
+        this.properties.forEach(property ->
+                this.dtkgEngine.addDigitalTwinProperty(property)
         );
-        this.relationshipList.forEach(relationship ->
-                this.dtkgEngine.addRelationship(relationship.getLeft(), relationship.getRight())
+        this.relationships.forEach(relationship ->
+                this.dtkgEngine.addRelationship(relationship)
         );
-        this.actionsList.forEach(action -> this.dtkgEngine.addActionId(action));
+        this.actionsList.forEach(action -> this.dtkgEngine.addAction(action));
     }
 
     @Test
     @DisplayName("It should be possible to obtain the turtle representation of the Digital Twin")
     void testDTKGCreation() {
+        assertEquals(
+            TestingUtils.readResourceFile("DTKGWithRelationshipsTurtle.ttl").orElse(""),
+            this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph()
+        );
+    }
+
+    @Test
+    @DisplayName("It should be possible to update a Property without seeing duplicates in the generated DTKG")
+    void testDTKGPropertyUpdateDuplication() {
+        for (int i = 0; i < modifiedProperties.size(); i++) {
+            this.dtkgEngine.updateDigitalTwinProperty(modifiedProperties.get(i), properties.get(i));
+        }
+        for (int i = 0; i < modifiedProperties.size(); i++) {
+            this.dtkgEngine.updateDigitalTwinProperty(properties.get(i), modifiedProperties.get(i));
+        }
         assertEquals(
                 TestingUtils.readResourceFile("DTKGWithRelationshipsTurtle.ttl").orElse(""),
                 this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph()
@@ -77,16 +97,17 @@ class JenaDTKGEngineTest {
     }
 
     @Test
-    @DisplayName("It should be possible to update a Property without seeing duplicates in the generated DTKG")
+    @DisplayName("An update must update only the mapped data without touching other data")
     void testDTKGPropertyUpdate() {
-        this.modifiedPropertyList.forEach(property ->
-                this.dtkgEngine.addDigitalTwinPropertyUpdate(property.getLeft(), property.getRight())
-        );
-        this.propertyList.forEach(property ->
-                this.dtkgEngine.addDigitalTwinPropertyUpdate(property.getLeft(), property.getRight())
-        );
+        for (int i = 0; i < modifiedRelationships.size(); i++) {
+            this.dtkgEngine.removeRelationship(relationships.get(i));
+            this.dtkgEngine.addRelationship(modifiedRelationships.get(i));
+        }
+        for (int i = 0; i < modifiedProperties.size(); i++) {
+            this.dtkgEngine.updateDigitalTwinProperty(modifiedProperties.get(i), properties.get(i));
+        }
         assertEquals(
-                TestingUtils.readResourceFile("DTKGWithRelationshipsTurtle.ttl").orElse(""),
+                TestingUtils.readResourceFile("DTKGWithRelationshipsTurtleUpdated.ttl").orElse(""),
                 this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph()
         );
     }
@@ -101,41 +122,37 @@ class JenaDTKGEngineTest {
     @Test
     @DisplayName("It should be possible to delete an existing relationship")
     void testDTKGRelationshipDeletion() {
-        assertTrue(this.dtkgEngine.removeRelationship(
-                new Property("https://smartcityontology.com/ontology#isApproaching"),
-                new Individual("intersection"))
-        );
+        assertTrue(this.dtkgEngine.removeRelationship(this.relationships.get(0)));
     }
 
     @Test
     @DisplayName("The request of deletion of a non-existent relationship should be correctly handled")
     void testDTKGNotExistentRelationshipDeletion() {
         assertFalse(this.dtkgEngine.removeRelationship(
-                new Property("http://non-existent-uri"),
-                new Individual("intersection"))
-        );
+            new DigitalTwinStateRelationshipInstance<>("not-existent-relationship", "target", "")
+        ));
     }
 
     @Test
     @DisplayName("It should be possible to delete an existent action")
     void testDTKGActionDeletion() {
-        assertTrue(this.dtkgEngine.removeActionId(this.actionsList.get(0)));
-        assertFalse(this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph().contains(this.actionsList.get(0)));
+        assertTrue(this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph().contains(this.actionsList.get(0).getKey()));
+        assertTrue(this.dtkgEngine.removeAction(this.actionsList.get(0)));
+        assertFalse(this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph().contains(this.actionsList.get(0).getKey()));
     }
 
     @Test
     @DisplayName("The request of deletion of a non-existent action should be correctly handled")
-    void testDTKGNotExistentActionDeletion() {
-        assertFalse(this.dtkgEngine.removeActionId("not-existent-action"));
+    void testDTKGNotExistentActionDeletion() throws WldtDigitalTwinStateException {
+        assertFalse(this.dtkgEngine.removeAction(new DigitalTwinStateAction("not-existent", "", "")));
     }
 
     @Test
     @DisplayName("The dtkg engine delete the correct statement when deleting an action: adding and removing an action"
             + "will result in the previous state")
     void testDTKGActionAdditionAndDeletion() {
-        final String newActionName = "another-action";
-        this.dtkgEngine.addActionId(newActionName);
-        this.dtkgEngine.removeActionId(newActionName);
+        this.dtkgEngine.removeAction(actionsList.get(0));
+        this.dtkgEngine.addAction(actionsList.get(0));
         assertEquals(
                 TestingUtils.readResourceFile("DTKGWithRelationshipsTurtle.ttl").orElse(""),
                 this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph()
