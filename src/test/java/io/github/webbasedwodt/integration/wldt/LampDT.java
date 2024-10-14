@@ -57,7 +57,7 @@ public final class LampDT {
                     new WoDTDigitalAdapterConfiguration(
                             URI.create("http://localhost:" + TEST_PORT_NUMBER),
                             new DTVersion(1, 2, 3),
-                            new LampDTOntology(),
+                            new LampDTSemantics(),
                             TEST_PORT_NUMBER,
                             "lampPA",
                             Set.of())
