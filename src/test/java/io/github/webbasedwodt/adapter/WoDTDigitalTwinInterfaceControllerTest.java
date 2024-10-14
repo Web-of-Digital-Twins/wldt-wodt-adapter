@@ -19,15 +19,17 @@ package io.github.webbasedwodt.adapter;
 import io.github.webbasedwodt.adapter.testdouble.PlatformManagementInterfaceReaderTestDouble;
 import io.github.webbasedwodt.application.component.DTDManager;
 import io.github.webbasedwodt.application.component.DTKGEngine;
-import io.github.webbasedwodt.integration.wldt.LampDTOntology;
+import io.github.webbasedwodt.integration.wldt.LampDTSemantics;
 import io.github.webbasedwodt.model.dtd.DTVersion;
-import io.github.webbasedwodt.model.ontology.Literal;
-import io.github.webbasedwodt.model.ontology.Property;
+import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
 import io.javalin.Javalin;
 import io.javalin.http.Header;
 import io.javalin.http.HttpStatus;
 import io.javalin.testtools.JavalinTest;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.exception.WldtDigitalTwinStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WoDTDigitalTwinInterfaceControllerTest {
     private static final int TEST_PORT_NUMBER = 3000;
     private static final URI TEST_DIGITAL_TWIN_URI = URI.create("http://example:" + TEST_PORT_NUMBER + "/dt");
+    private final DigitalTwinSemantics dtSemantics = new LampDTSemantics();
     private Javalin app;
     private DTKGEngine dtkgEngine;
     private DTDManager dtdManager;
@@ -50,11 +53,11 @@ class WoDTDigitalTwinInterfaceControllerTest {
     @BeforeEach
     public void init() {
         this.app = Javalin.create();
-        this.dtkgEngine = new JenaDTKGEngine(TEST_DIGITAL_TWIN_URI);
+        this.dtkgEngine = new JenaDTKGEngine(TEST_DIGITAL_TWIN_URI, dtSemantics);
         this.dtdManager = new WoTDTDManager(
                 TEST_DIGITAL_TWIN_URI,
                 new DTVersion(1, 0, 0),
-                new LampDTOntology(),
+                new LampDTSemantics(),
                 "lampPA",
                 new PlatformManagementInterfaceReaderTestDouble());
         new WoDTDigitalTwinInterfaceControllerImpl(this.dtkgEngine, this.dtdManager, (action, body) -> true)
@@ -75,9 +78,8 @@ class WoDTDigitalTwinInterfaceControllerTest {
 
     @Test
     @DisplayName("A HTTP GET request on existent DTKG should correctly return the current DTKG")
-    void testGetDtkg() {
-        this.dtkgEngine.addDigitalTwinPropertyUpdate(
-                new Property("http://example.com/prop"), new Literal<>("value"));
+    void testGetDtkg() throws WldtDigitalTwinStateException {
+        this.dtkgEngine.addDigitalTwinProperty(new DigitalTwinStateProperty<>("luminosity", 100));
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtkg");
             assertEquals(HttpStatus.OK.getCode(), response.code());
@@ -98,10 +100,11 @@ class WoDTDigitalTwinInterfaceControllerTest {
 
     @Test
     @DisplayName("It should be possible to invoke an existent action")
-    void testInvokeExistingAction() {
-        this.dtdManager.addAction("switch-action-key");
+    void testInvokeExistingAction() throws WldtDigitalTwinStateException {
+        final DigitalTwinStateAction action = new DigitalTwinStateAction("switch", "", "");
+        this.dtdManager.addAction(action);
         JavalinTest.test(this.app, (server, client) -> {
-            final var response = client.post("/action/switch-action-key");
+            final var response = client.post("/action/" + action.getKey());
             assertEquals(HttpStatus.ACCEPTED.getCode(), response.code());
         });
     }
