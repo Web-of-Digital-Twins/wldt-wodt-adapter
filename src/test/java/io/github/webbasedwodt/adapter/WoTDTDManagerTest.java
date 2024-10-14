@@ -18,10 +18,14 @@ package io.github.webbasedwodt.adapter;
 
 import io.github.webbasedwodt.adapter.testdouble.PlatformManagementInterfaceReaderTestDouble;
 import io.github.webbasedwodt.application.component.DTDManager;
-import io.github.webbasedwodt.integration.wldt.LampDTOntology;
+import io.github.webbasedwodt.integration.wldt.LampDTSemantics;
 import io.github.webbasedwodt.model.dtd.DTVersion;
-import io.github.webbasedwodt.model.ontology.DTOntology;
+import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
+import it.wldt.core.state.DigitalTwinStateAction;
+import it.wldt.core.state.DigitalTwinStateProperty;
+import it.wldt.core.state.DigitalTwinStateRelationship;
+import it.wldt.exception.WldtDigitalTwinStateException;
 import org.eclipse.ditto.json.JsonKey;
 import org.eclipse.ditto.wot.model.Action;
 import org.eclipse.ditto.wot.model.Properties;
@@ -41,16 +45,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests for {@link WoTDTDManager}.
  */
 class WoTDTDManagerTest {
-    private final DTOntology lampOntology = new LampDTOntology();
+    private final DigitalTwinSemantics dtSemantics = new LampDTSemantics();
     private final DTVersion dtVersion = new DTVersion(1, 0, 0);
+    private final DigitalTwinStateProperty<?> dtProperty = new DigitalTwinStateProperty<>("luminosity", 100);
+    private final DigitalTwinStateRelationship<?> dtRelationship = new DigitalTwinStateRelationship<>("isInRoom", "");
+    private final DigitalTwinStateAction dtAction = new DigitalTwinStateAction("switch", "", "");
     private DTDManager dtdManager;
+
+    WoTDTDManagerTest() throws WldtDigitalTwinStateException {
+        // This constructor is intentionally empty. Nothing special is needed here.
+    }
 
     @BeforeEach
     public void init() {
         this.dtdManager = new WoTDTDManager(
                 URI.create("http://example:3000/dt"),
                 this.dtVersion,
-                this.lampOntology,
+                this.dtSemantics,
                 "lampPA",
                 new PlatformManagementInterfaceReaderTestDouble());
     }
@@ -81,12 +92,11 @@ class WoTDTDManagerTest {
     @Test
     @DisplayName("A property should contain the mandatory information")
     void testCorrectInformationOnProperty() {
-        final String propertyName = "is-on-property-key";
-        this.dtdManager.addProperty(propertyName);
+        this.dtdManager.addProperty(this.dtProperty);
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        generalTestOnThingDescriptionProperty(thingDescription, propertyName);
+        generalTestOnThingDescriptionProperty(thingDescription, this.dtProperty);
         final Optional<org.eclipse.ditto.wot.model.Property> property =
-                thingDescription.getProperties().flatMap(properties -> properties.getProperty(propertyName));
+                thingDescription.getProperties().flatMap(properties -> properties.getProperty(this.dtProperty.getKey()));
         assertTrue(property.isPresent());
         assertTrue(property.get().getWrappedObject().asObject()
                 .getKeys().contains(JsonKey.of(WoDTVocabulary.AUGMENTED_INTERACTION.getUri())));
@@ -100,40 +110,36 @@ class WoTDTDManagerTest {
     @Test
     @DisplayName("It should be possible to delete a property")
     void testDeletionOfProperty() {
-        final String propertyName = "is-on-property-key";
-        this.dtdManager.addProperty(propertyName);
-        assertTrue(this.dtdManager.removeProperty(propertyName));
+        this.dtdManager.addProperty(this.dtProperty);
+        assertTrue(this.dtdManager.removeProperty(this.dtProperty));
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getProperties().get().getProperty(propertyName).isPresent());
+        assertFalse(thingDescription.getProperties().get().getProperty(this.dtProperty.getKey()).isPresent());
     }
 
     @Test
     @DisplayName("A relationship should be represented in the DTD with the mandatory information")
     void testCorrectInformationOnRelationship() {
-        final String relationshipName = "located-inside";
-        this.dtdManager.addRelationship(relationshipName);
+        this.dtdManager.addRelationship(this.dtRelationship);
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        generalTestOnThingDescriptionProperty(thingDescription, relationshipName);
+        generalTestOnThingDescriptionProperty(thingDescription, this.dtRelationship);
     }
 
     @Test
     @DisplayName("It should be possible to delete a relationship")
     void testDeletionOfRelationship() {
-        final String relationshipName = "located-inside";
-        this.dtdManager.addRelationship(relationshipName);
-        assertTrue(this.dtdManager.removeRelationship(relationshipName));
+        this.dtdManager.addRelationship(this.dtRelationship);
+        assertTrue(this.dtdManager.removeRelationship(this.dtRelationship));
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getProperties().get().containsKey(relationshipName));
+        assertFalse(thingDescription.getProperties().get().containsKey(this.dtRelationship.getName()));
     }
 
     @Test
     @DisplayName("It should be possible to add an action")
     void testCorrectInformationOnAction() {
-        final String actionName = "switch-action-key";
-        this.dtdManager.addAction(actionName);
+        this.dtdManager.addAction(dtAction);
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        assertTrue(thingDescription.getActions().get().containsKey(actionName));
-        final Action action = thingDescription.getActions().get().getAction(actionName).get();
+        assertTrue(thingDescription.getActions().get().containsKey(dtAction.getKey()));
+        final Action action = thingDescription.getActions().get().getAction(dtAction.getKey()).get();
         assertFalse(action.getForms().isEmpty());
         assertTrue(action.getWrappedObject().asObject().getKeys()
                 .contains(JsonKey.of(WoDTVocabulary.DOMAIN_TAG.getUri())));
@@ -147,11 +153,10 @@ class WoTDTDManagerTest {
     @Test
     @DisplayName("It should be possible to delete an action")
     void testDeletionOfAction() {
-        final String actionName = "switch-action-key";
-        this.dtdManager.addAction(actionName);
-        assertTrue(this.dtdManager.removeAction(actionName));
+        this.dtdManager.addAction(dtAction);
+        assertTrue(this.dtdManager.removeAction(dtAction));
         final ThingDescription thingDescription = this.dtdManager.getDTD();
-        assertFalse(thingDescription.getActions().get().containsKey(actionName));
+        assertFalse(thingDescription.getActions().get().containsKey(dtAction.getKey()));
     }
 
     @Test
@@ -164,12 +169,27 @@ class WoTDTDManagerTest {
                 link.getRel().get().equals(WoDTVocabulary.REGISTERED_TO_PLATFORM.getUri())));
     }
 
-    void generalTestOnThingDescriptionProperty(final ThingDescription thingDescription, final String propertyName) {
+    void generalTestOnThingDescriptionProperty(
+            final ThingDescription thingDescription,
+            final DigitalTwinStateProperty<?> property
+    ) {
         final Optional<Properties> properties = thingDescription.getProperties();
         assertTrue(properties.isPresent());
-        assertTrue(properties.get().containsKey(propertyName));
-        assertTrue(properties.get().getProperty(propertyName).get().isReadOnly());
-        assertTrue(properties.get().getProperty(propertyName).get().getWrappedObject()
+        assertTrue(properties.get().containsKey(property.getKey()));
+        assertTrue(properties.get().getProperty(property.getKey()).get().isReadOnly());
+        assertTrue(properties.get().getProperty(property.getKey()).get().getWrappedObject()
+                .asObject().getKeys().contains(JsonKey.of(WoDTVocabulary.DOMAIN_TAG.getUri())));
+    }
+
+    void generalTestOnThingDescriptionProperty(
+            final ThingDescription thingDescription,
+            final DigitalTwinStateRelationship<?> relationship
+    ) {
+        final Optional<Properties> properties = thingDescription.getProperties();
+        assertTrue(properties.isPresent());
+        assertTrue(properties.get().containsKey(relationship.getName()));
+        assertTrue(properties.get().getProperty(relationship.getName()).get().isReadOnly());
+        assertTrue(properties.get().getProperty(relationship.getName()).get().getWrappedObject()
                 .asObject().getKeys().contains(JsonKey.of(WoDTVocabulary.DOMAIN_TAG.getUri())));
     }
 }
