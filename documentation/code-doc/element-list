@@ -2,4 +2,6 @@ io.github.webbasedwodt.adapter
 io.github.webbasedwodt.application.component
 io.github.webbasedwodt.application.component.observer
 io.github.webbasedwodt.application.presenter.api
+io.github.webbasedwodt.model.dtd
 io.github.webbasedwodt.model.ontology
+io.github.webbasedwodt.model.ontology.rdf
