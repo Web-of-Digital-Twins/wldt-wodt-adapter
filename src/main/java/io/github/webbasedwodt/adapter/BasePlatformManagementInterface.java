@@ -81,12 +81,12 @@ final class BasePlatformManagementInterface implements PlatformManagementInterfa
     }
 
     private URI getPlatformWoDT(final URI platformUrl, final String... path) {
-        final String platformUrlString = platformUrl.toString();
-        String platformWoDT = platformUrlString.concat(PATH_TO_PLATFORM_WODT);
         if (path.length > 0) {
-            platformWoDT = platformUrlString.concat(Arrays.stream(path).collect(Collectors.joining("/", "/", "")));
+            return platformUrl.resolve(
+                    PATH_TO_PLATFORM_WODT
+                            + Arrays.stream(path).collect(Collectors.joining("/", "/", "")));
         }
-        return URI.create(platformWoDT);
+        return platformUrl.resolve(PATH_TO_PLATFORM_WODT);
     }
 
     @Override
