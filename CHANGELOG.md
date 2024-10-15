@@ -1,3 +1,9 @@
+## [5.0.2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.1...5.0.2) (2024-10-15)
+
+### Bug Fixes
+
+* local dt uri resolution ([df804e2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/df804e284e527413a6c1598b590ea939375e40cf))
+
 ## [5.0.1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.0...5.0.1) (2024-10-14)
 
 ### Dependency updates
