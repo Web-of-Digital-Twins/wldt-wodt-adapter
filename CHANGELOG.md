@@ -1,3 +1,36 @@
+## [5.1.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.2...5.1.0) (2024-11-30)
+
+### Features
+
+* align with new platform registration notification ([30e7274](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/30e72749178422f733ab66e204f0d0d6a7b5a25b))
+
+### Dependency updates
+
+* **deps:** update dependency org.eclipse.ditto:ditto-wot-model to v3.6.1 ([8b619a4](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8b619a4530abdcabc36e2fed4293b5549b19267c))
+* **deps:** update dependency org.eclipse.ditto:ditto-wot-model to v3.6.2 ([502739f](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/502739fe7c4830b335044e084bbf233810dfb62b))
+* **deps:** update dependency org.eclipse.ditto:ditto-wot-model to v3.6.3 ([77f884d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/77f884decfe66025559b44026bcd341a8a00d3e3))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.112 ([09987c9](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/09987c97aeb52b973606605a2a3f4a22746f09ca))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.113 ([fb2bad3](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/fb2bad33b28f52aad2ecba1e6fcd3437dd081da8))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.114 ([e3be91e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/e3be91e3c850a90bec2f91fb8dec5861713cbcf9))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.115 ([d43c82e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/d43c82ea0bf00a351191a5c74091fcd4a05ee97b))
+* **deps:** update junit5 monorepo to v5.11.3 ([a48cde6](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/a48cde67df110b21d93a3b1c7e933258993ee8f7))
+* **deps:** update node.js to v22 ([1ec9ece](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/1ec9ece98b36506577c20bedac08937a4fd06014))
+* **deps:** update plugin com.gradle.develocity to v3.18.2 ([60a64b8](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/60a64b85e37b2fbe22906d78bb3d421cf9842690))
+* **deps:** update plugin org.danilopianini.gradle-pre-commit-git-hooks to v2.0.14 ([d900603](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/d900603539b449d6d87f041561ceaf17f9e363f7))
+* **deps:** update plugin org.danilopianini.gradle-pre-commit-git-hooks to v2.0.15 ([767d74d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/767d74d52d0811f093eefd906942843d2b66a5ee))
+* **deps:** update plugin publish-on-central to v5.1.10 ([19fc225](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/19fc225f2d20b45f6860e04a42a70e4f9ae850f2))
+* **deps:** update plugin publish-on-central to v5.1.11 ([0179cd4](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/0179cd4b013acaf15b892ccc6264ea95f1893eda))
+
+### Build and continuous integration
+
+* **deps:** update actions/setup-node action to v4.1.0 ([8230a9d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8230a9d1f9fe1f6a57f3e1903e183cb136103130))
+* **deps:** update codecov/codecov-action action to v5 ([4e07797](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/4e077974c61c5e4b2a81ed2994c0a1ee7ebf629e))
+* **deps:** update codecov/codecov-action action to v5.0.1 ([a80d04e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/a80d04e3c88d0b135efafe5027081edbb038397b))
+* **deps:** update codecov/codecov-action action to v5.0.2 ([171eeae](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/171eeaebb8ba15a2f60e2ccf61acfdd97741812e))
+* **deps:** update codecov/codecov-action action to v5.0.3 ([ef7488b](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/ef7488bae86b8f10f8bfa6333475ff0ce6bb7033))
+* **deps:** update codecov/codecov-action action to v5.0.6 ([e331def](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/e331def72cc063f63362d4d54b7c401e5517c48f))
+* **deps:** update codecov/codecov-action action to v5.0.7 ([a6a528d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/a6a528d3c0f656684e6133c95a26cd60cf7a50c7))
+
 ## [5.0.2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.1...5.0.2) (2024-10-15)
 
 ### Bug Fixes
