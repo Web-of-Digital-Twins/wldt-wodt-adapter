@@ -22,6 +22,7 @@ import io.github.webbasedwodt.model.dtd.DTVersion;
 import io.github.webbasedwodt.model.ontology.DigitalTwinSemantics;
 import io.github.webbasedwodt.model.ontology.WoDTVocabulary;
 import io.github.webbasedwodt.model.ontology.rdf.RdfUriResource;
+import io.github.webbasedwodt.utils.UriUtil;
 import it.wldt.core.state.DigitalTwinStateAction;
 import it.wldt.core.state.DigitalTwinStateProperty;
 import it.wldt.core.state.DigitalTwinStateRelationship;
@@ -159,7 +160,7 @@ public final class WoTDTDManager implements DTDManager {
             .setType("application/tm+json")
             .build());
         links.add(Link.newBuilder()
-            .setHref(IRI.of(this.digitalTwinUri.resolve("/dtkg").toString()))
+            .setHref(IRI.of(UriUtil.uriRelativeResolve(this.digitalTwinUri, "dtkg").toString()))
             .setRel(WoDTVocabulary.DTKG.getUri())
             .build());
 
@@ -186,10 +187,12 @@ public final class WoTDTDManager implements DTDManager {
                 .setActions(Actions.from(this.actions.values()))
                 .setForms(List.of(RootFormElement.newBuilder()
                                 .setHref(IRI.of(
-                                    URI.create(this.digitalTwinUri.toString().replaceFirst("([a-zA-Z][a-zA-Z0-9+.-]*):", "ws:"))
-                                            .resolve("/dtkg")
-                                            .toString()
-                                    ))
+                                    UriUtil.uriRelativeResolve(
+                                        URI.create(
+                                            this.digitalTwinUri.toString().replaceFirst("([a-zA-Z][a-zA-Z0-9+.-]*):", "ws:")),
+                                        "dtkg"
+                                    ).toString())
+                                )
                                 .setSubprotocol("websocket")
                                 .setOp(SingleRootFormElementOp.OBSERVEALLPROPERTIES)
                                 .build()))
@@ -239,7 +242,8 @@ public final class WoTDTDManager implements DTDManager {
                 .set(WoDTVocabulary.DOMAIN_TAG.getUri(), actionDomainTag)
                 .set(WoDTVocabulary.AUGMENTED_INTERACTION.getUri(), false)
                 .setForms(ActionForms.of(List.of(ActionFormElement.newBuilder()
-                    .setHref(IRI.of(this.digitalTwinUri.resolve("/action/" + action.getKey()).toString()))
+                    .setHref(IRI.of(
+                        UriUtil.uriRelativeResolve(this.digitalTwinUri, "action/") + action.getKey()))
                     .build())))
                 .build());
     }
