@@ -1,3 +1,30 @@
+## [5.1.1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.1.0...5.1.1) (2024-12-12)
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.116 ([641f6d1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/641f6d1861e680e1bc09022b895468b92ef3f0e1))
+* **deps:** update node.js to 22.12 ([8584fa3](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/8584fa379d9cf669f240ee64abe7a5233013f9e4))
+* **deps:** update plugin publish-on-central to v6 ([62264fe](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/62264fecf00cc92b6c55842bea5522e3241e0b54))
+* **deps:** update plugin publish-on-central to v7 ([dcb9f4d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/dcb9f4dd67a89f9b4c0677c91e832a0865f1e7aa))
+
+### Bug Fixes
+
+* set relative urls correctly ([af3cc6e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/af3cc6e303e12012185b4df93cb0df642daf5735))
+* set the dtd link header correctly with respect to dtkg url ([91a16c2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/91a16c27de5b3da9920c1225eca5ee57e108d816))
+
+### Tests
+
+* add tests for uri utilities ([1bf8175](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/1bf817551691d46b1b7e71de265d89af73e7eb8d))
+
+### Build and continuous integration
+
+* **deps:** update codecov/codecov-action action to v5.1.0 ([72bc6ff](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/72bc6ff8010f24815214e5120038d8a44d6390e6))
+* **deps:** update codecov/codecov-action action to v5.1.1 ([77f5b91](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/77f5b91964dded8eb874b69da8e04465291d88fe))
+
+### General maintenance
+
+* add uri utilities ([349839d](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/349839d18232771e196e933453b26b358680a46e))
+
 ## [5.1.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.0.2...5.1.0) (2024-11-30)
 
 ### Features
