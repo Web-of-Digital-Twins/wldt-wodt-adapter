@@ -60,7 +60,7 @@ final class WoDTDigitalTwinInterfaceControllerImpl implements WoDTDigitalTwinInt
 
     @Override
     public void routeGetDigitalTwin(final Context context) {
-        context.header(Header.LOCATION, "/dtkg");
+        context.header(Header.LOCATION, "dtkg");
         context.status(HttpStatus.SEE_OTHER);
     }
 
