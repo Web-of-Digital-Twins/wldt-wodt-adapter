@@ -1,3 +1,9 @@
+## [5.1.2](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.1.1...5.1.2) (2024-12-12)
+
+### Bug Fixes
+
+* set dt see other location correctly when dereferenced from its uri ([7b9a422](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/7b9a42298aba25c3874e2b322baff8b68d3fd5de))
+
 ## [5.1.1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.1.0...5.1.1) (2024-12-12)
 
 ### Dependency updates
