@@ -5,3 +5,4 @@ io.github.webbasedwodt.application.presenter.api
 io.github.webbasedwodt.model.dtd
 io.github.webbasedwodt.model.ontology
 io.github.webbasedwodt.model.ontology.rdf
+io.github.webbasedwodt.utils
