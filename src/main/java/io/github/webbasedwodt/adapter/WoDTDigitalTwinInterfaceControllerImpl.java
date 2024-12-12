@@ -74,7 +74,7 @@ final class WoDTDigitalTwinInterfaceControllerImpl implements WoDTDigitalTwinInt
             context.header(Header.CONTENT_TYPE, "text/turtle");
             context.result(dtkg);
         }
-        context.header(Header.LINK, "</dtd>; rel=\"" + WoDTVocabulary.DTD + "\"");
+        context.header(Header.LINK, "<dtd>; rel=\"" + WoDTVocabulary.DTD + "\"");
     }
 
     @Override

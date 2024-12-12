@@ -71,7 +71,7 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtkg");
             assertEquals(HttpStatus.NO_CONTENT.getCode(), response.code());
-            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
+            assertEquals("<dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
             assertTrue(response.body().string().isEmpty());
         });
     }
@@ -83,7 +83,7 @@ class WoDTDigitalTwinInterfaceControllerTest {
         JavalinTest.test(this.app, (server, client) -> {
             final var response = client.get("/dtkg");
             assertEquals(HttpStatus.OK.getCode(), response.code());
-            assertEquals("</dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
+            assertEquals("<dtd>; rel=\"" + WoDTVocabulary.DTD + "\"", response.header(Header.LINK));
             assertEquals(this.dtkgEngine.getCurrentDigitalTwinKnowledgeGraph(), response.body().string());
         });
     }
