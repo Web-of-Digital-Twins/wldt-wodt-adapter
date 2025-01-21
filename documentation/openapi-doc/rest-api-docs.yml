@@ -15,6 +15,8 @@ info:
 tags:
   - name: WoDT Digital Twin Interface API
     description: This is the API exposed by the WoDT Digital Twin Interface for Consumers.
+  - name: Platform Management Interface API
+    description: This is the API exposed by the Platform Management Interface for WoDT Platforms.
 
 paths:
   /dtkg:
@@ -141,3 +143,30 @@ paths:
           description: the action invocation has been elaborated by the WoDT Digital Twin
         '400':
           description: invalid action id provided or action currently not available
+
+  /platform:
+    post:
+      tags:
+        - Platform Management Interface API
+      summary: notification endpoint for external registration of the Digital Twin
+      operationId: notifyRegistration
+      description: notification endpoint for external registration of the Digital Twin
+      responses:
+        '200':
+          description: notification ok
+        '400':
+          description: the notification was not structured properly or the digital twin was already registered
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                self:
+                  type: string
+                  example: http://platform.com
+                  description: the URL of the platform
+                dtUri:
+                  type: string
+                  example: http://dt-uri.com
+                  description: the URI of the Digital Twin involved in the registration notification
