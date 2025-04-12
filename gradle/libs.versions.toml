@@ -2,7 +2,7 @@
 junit = "5.11.4"
 
 [libraries]
-ditto-wot-model = { module = "org.eclipse.ditto:ditto-wot-model", version = "3.7.2" }
+ditto-wot-model = { module = "org.eclipse.ditto:ditto-wot-model", version = "3.7.3" }
 javalin = { module= "io.javalin:javalin-bundle", version = "6.5.0" }
 jena = { module = "org.apache.jena:apache-jena-libs", version = "4.10.0" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
