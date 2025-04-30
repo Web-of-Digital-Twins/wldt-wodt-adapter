@@ -32,9 +32,10 @@ import it.wldt.core.state.DigitalTwinStateResource;
 import it.wldt.exception.EventBusException;
 import it.wldt.exception.WldtDigitalTwinStateActionException;
 import it.wldt.exception.WldtDigitalTwinStatePropertyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * This class represents the WLDT Framework Digital Adapter that allows to implement the WoDT Digital Twin layer
@@ -46,6 +47,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     private final WoDTWebServer woDTWebServer;
     private final PlatformManagementInterface platformManagementInterface;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WoDTDigitalAdapter.class);
     /**
      * Default constructor.
      * @param digitalAdapterId the id of the Digital Adapter
@@ -74,8 +76,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         publishDigitalActionWldtEvent(actionName, body);
                         return true;
                     } catch (EventBusException e) {
-                        Logger.getLogger(WoDTDigitalAdapter.class.getName())
-                                .info("Impossible to forward action: " + e);
+                        LOGGER.info("Impossible to forward action: " + e);
                         return false;
                     }
                 },
@@ -94,6 +95,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
             final ArrayList<DigitalTwinStateChange> digitalTwinStateChanges
     ) {
         if (digitalTwinStateChanges != null && !digitalTwinStateChanges.isEmpty()) {
+            LOGGER.info("New State Update Received");
             for (final DigitalTwinStateChange change : digitalTwinStateChanges) {
                 final DigitalTwinStateChange.Operation operationPerformed = change.getOperation();
                 final DigitalTwinStateChange.ResourceType changeResourceType = change.getResourceType();
@@ -142,7 +144,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         }
                         break;
                     case EVENT:
-                        Logger.getLogger(WoDTDigitalAdapter.class.getName()).info("Events are not currently supported");
+                        LOGGER.info("Events are not currently supported");
                         break;
                     default:
                         break;
@@ -257,7 +259,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         this.dtkgEngine.addAction(action);
                     }));
         } catch (WldtDigitalTwinStatePropertyException | WldtDigitalTwinStateActionException e) {
-            Logger.getLogger(WoDTDigitalAdapter.class.getName()).info("Error during loading: " + e);
+            LOGGER.info("Error during loading: " + e);
         }
     }
 

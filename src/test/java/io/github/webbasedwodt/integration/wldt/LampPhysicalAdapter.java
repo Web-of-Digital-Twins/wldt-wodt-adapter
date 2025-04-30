@@ -27,8 +27,8 @@ import it.wldt.adapter.physical.event.PhysicalAssetRelationshipInstanceCreatedWl
 import it.wldt.adapter.physical.event.PhysicalAssetRelationshipInstanceDeletedWldtEvent;
 import it.wldt.exception.EventBusException;
 import it.wldt.exception.PhysicalAdapterException;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The physical adapter of the lamp Digital Twins used during tests.
@@ -45,6 +45,7 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
     private final PhysicalAssetRelationship<String> relationshipIsInRoom =
             new PhysicalAssetRelationship<>(IS_IN_ROOM_RELATIONSHIP_KEY);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LampPhysicalAdapter.class);
     /**
      * Default constructor.
      */
@@ -64,9 +65,9 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
                         this.status ? LUMINOSITY_ON_VALUE : 0
                 );
                 publishPhysicalAssetPropertyWldtEvent(newLuminosity);
-                Logger.getLogger(LampPhysicalAdapter.class.getName()).info("ACTION called: Switch");
+                LOGGER.info("ACTION called: Switch");
             } catch (EventBusException e) {
-                Logger.getLogger(LampPhysicalAdapter.class.getName()).info(e.getMessage());
+                LOGGER.info(e.getMessage());
             }
         }
     }
@@ -85,7 +86,7 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
         try {
             this.notifyPhysicalAdapterBound(pad);
         } catch (PhysicalAdapterException | EventBusException e) {
-            Logger.getLogger(LampPhysicalAdapter.class.getName()).info(e.getMessage());
+            LOGGER.info(e.getMessage());
         }
 
         new Thread(this::emulatedDevice).start();
@@ -123,10 +124,10 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
                         Math.random() * 100
                 );
                 publishPhysicalAssetPropertyWldtEvent(newIlluminance);
-                Logger.getLogger(LampPhysicalAdapter.class.getName()).info("STATUS: " + this.status);
+                LOGGER.info("STATUS: " + this.status);
             }
         } catch (EventBusException | InterruptedException e) {
-            Logger.getLogger(LampPhysicalAdapter.class.getName()).info(e.getMessage());
+            LOGGER.info(e.getMessage());
         }
     }
 }
