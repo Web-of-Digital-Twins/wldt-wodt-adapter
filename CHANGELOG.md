@@ -1,3 +1,13 @@
+## [5.2.1](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.2.0...5.2.1) (2025-05-06)
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.127 ([f2955fd](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/f2955fdb30bfcf55bbb9ced6315e2e87c9b7d89c))
+
+### Bug Fixes
+
+* logging was not using the ID of the adapter ([dca234e](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/commit/dca234ef55a2b40a1d26d0312cb2347b1dc36a11))
+
 ## [5.2.0](https://github.com/Web-of-Digital-Twins/wldt-wodt-adapter/compare/5.1.3...5.2.0) (2025-04-30)
 
 ### Features
