@@ -26,7 +26,6 @@ import io.javalin.http.Header;
 import io.javalin.http.HttpStatus;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -117,7 +116,6 @@ final class WoDTDigitalTwinInterfaceControllerImpl implements WoDTDigitalTwinInt
     @Override
     public void notifyNewDTKG(final String newDtkg) {
         this.webSockets.stream().filter(ctx -> ctx.session.isOpen()).forEach(session -> session.send(newDtkg));
-        LoggerFactory.getLogger(WoDTDigitalAdapter.class).info("New DTKG update sent");
     }
 
     @Override

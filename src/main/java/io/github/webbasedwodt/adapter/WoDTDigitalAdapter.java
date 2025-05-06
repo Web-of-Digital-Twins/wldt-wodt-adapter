@@ -76,7 +76,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         publishDigitalActionWldtEvent(actionName, body);
                         return true;
                     } catch (EventBusException e) {
-                        LOGGER.info("Impossible to forward action: " + e);
+                        this.logMessage("Impossible to forward action: " + e);
                         return false;
                     }
                 },
@@ -95,7 +95,9 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
             final ArrayList<DigitalTwinStateChange> digitalTwinStateChanges
     ) {
         if (digitalTwinStateChanges != null && !digitalTwinStateChanges.isEmpty()) {
-            LOGGER.info("New State Update Received");
+            this.logMessage("New State Update Received");
+            //TODO this for seems to be sending multiple updates for a single state change
+            // implement a sort of transaction for state updates would be best
             for (final DigitalTwinStateChange change : digitalTwinStateChanges) {
                 final DigitalTwinStateChange.Operation operationPerformed = change.getOperation();
                 final DigitalTwinStateChange.ResourceType changeResourceType = change.getResourceType();
@@ -144,12 +146,13 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         }
                         break;
                     case EVENT:
-                        LOGGER.info("Events are not currently supported");
+                        this.logMessage("Events are not currently supported");
                         break;
                     default:
                         break;
                 }
             }
+            this.logMessage("New state update sent");
         }
     }
 
@@ -259,7 +262,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         this.dtkgEngine.addAction(action);
                     }));
         } catch (WldtDigitalTwinStatePropertyException | WldtDigitalTwinStateActionException e) {
-            LOGGER.info("Error during loading: " + e);
+            this.logMessage("Error during loading: " + e);
         }
     }
 
@@ -277,4 +280,8 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
 
     @Override
     public void onDigitalTwinDestroy() { }
+
+    private void logMessage(final String message) {
+        LOGGER.info("[{}] - {}", this.getId(), message);
+    }
 }
