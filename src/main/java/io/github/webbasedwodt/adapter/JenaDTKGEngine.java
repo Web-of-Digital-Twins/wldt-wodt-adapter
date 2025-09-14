@@ -77,7 +77,6 @@ final class JenaDTKGEngine implements DTKGEngine {
     @Override
     public void removeDigitalTwin() {
         this.writeModel(Model::removeAll);
-        this.notifyObservers();
     }
 
     @Override
@@ -91,7 +90,6 @@ final class JenaDTKGEngine implements DTKGEngine {
                 addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get())
             );
             this.propertyKeys.add(property.getKey());
-            this.notifyObservers();
         } else {
             throw new IllegalArgumentException("Mapping for property not present.");
         }
@@ -110,7 +108,6 @@ final class JenaDTKGEngine implements DTKGEngine {
                 removeTriples(this.digitalTwinResource, oldMappedData.get());
                 addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get());
             });
-            this.notifyObservers();
         } else {
             throw new IllegalArgumentException("Mapping for properties not present.");
         }
@@ -124,7 +121,6 @@ final class JenaDTKGEngine implements DTKGEngine {
                 removeTriples(this.digitalTwinResource, mappedData.get())
             );
             this.propertyKeys.remove(property.getKey());
-            this.notifyObservers();
             return true;
         } else {
             return false;
@@ -138,7 +134,6 @@ final class JenaDTKGEngine implements DTKGEngine {
             this.writeModel(model ->
                 addTriples(this.dtkgModel, this.digitalTwinResource, mappedData.get())
             );
-            this.notifyObservers();
         } else {
             throw new IllegalArgumentException("Mapping for relationship not present.");
         }
@@ -151,7 +146,6 @@ final class JenaDTKGEngine implements DTKGEngine {
             this.writeModel(model ->
                 removeTriples(this.digitalTwinResource, mappedData.get())
             );
-            this.notifyObservers();
             return true;
         } else {
             return false;
@@ -166,7 +160,6 @@ final class JenaDTKGEngine implements DTKGEngine {
                 action.getKey()
             )
         );
-        this.notifyObservers();
     }
 
     @Override
@@ -201,6 +194,11 @@ final class JenaDTKGEngine implements DTKGEngine {
     @Override
     public void addDTKGObserver(final DTKGObserver observer) {
         this.observers.add(observer);
+    }
+
+    @Override
+    public void commitUpdateTransaction() {
+        this.notifyObservers();
     }
 
     private void notifyObservers() {

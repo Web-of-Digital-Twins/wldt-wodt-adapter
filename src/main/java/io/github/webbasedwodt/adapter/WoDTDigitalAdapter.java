@@ -96,7 +96,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
     ) {
         if (digitalTwinStateChanges != null && !digitalTwinStateChanges.isEmpty()) {
             this.logMessage("New State Update Received");
-            //TODO this for seems to be sending multiple updates for a single state change
+            //TODO this for sends multiple updates for a single state change
             // implement a sort of transaction for state updates would be best
             for (final DigitalTwinStateChange change : digitalTwinStateChanges) {
                 final DigitalTwinStateChange.Operation operationPerformed = change.getOperation();
@@ -152,6 +152,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         break;
                 }
             }
+            this.dtkgEngine.commitUpdateTransaction();
             this.logMessage("New state update sent");
         }
     }
@@ -261,6 +262,7 @@ public final class WoDTDigitalAdapter extends DigitalAdapter<WoDTDigitalAdapterC
                         this.dtdManager.addAction(action);
                         this.dtkgEngine.addAction(action);
                     }));
+            this.dtkgEngine.commitUpdateTransaction();
         } catch (WldtDigitalTwinStatePropertyException | WldtDigitalTwinStateActionException e) {
             this.logMessage("Error during loading: " + e);
         }

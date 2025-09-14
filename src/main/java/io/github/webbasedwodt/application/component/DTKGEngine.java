@@ -82,4 +82,9 @@ public interface DTKGEngine extends DTKGEngineReader {
      * @param observer the observer to add.
      */
     void addDTKGObserver(DTKGObserver observer);
+
+    /**
+     * Commits a transaction, notifying all the observers about the changes occurred in the DTKG update.
+     */
+    void commitUpdateTransaction();
 }

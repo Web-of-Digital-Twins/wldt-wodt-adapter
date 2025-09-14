@@ -43,7 +43,7 @@ public final class LampPhysicalAdapter extends PhysicalAdapter {
 
     private boolean status;
     private final PhysicalAssetRelationship<String> relationshipIsInRoom =
-            new PhysicalAssetRelationship<>(IS_IN_ROOM_RELATIONSHIP_KEY);
+            new PhysicalAssetRelationship<>(IS_IN_ROOM_RELATIONSHIP_KEY, IS_IN_ROOM_RELATIONSHIP_KEY);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LampPhysicalAdapter.class);
     /**
